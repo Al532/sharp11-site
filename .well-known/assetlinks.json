@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.al532.sharpelevenapp",
+      "sha256_cert_fingerprints": [
+        "E4:73:BE:BF:94:CF:D5:B3:75:0E:C6:38:0B:B2:92:D9:2B:A5:30:FB:D7:F4:34:E6:48:D8:03:F1:A9:3B:A8:EB"
+      ]
+    }
+  }
+]
