@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chart Grid Editor - Sharp11</title>
+  <meta name="description" content="Write and validate Sharp Eleven chart grids, then import them into the app with a QR code.">
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" defer></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #fbfaf7;
+      --ink: #20201d;
+      --muted: #6d6a61;
+      --line: #ded8ca;
+      --line-strong: #c9bfae;
+      --accent: #1e6657;
+      --accent-strong: #12483d;
+      --danger: #a53b2e;
+      --panel: #ffffff;
+      --shadow: 0 18px 42px rgba(40, 36, 28, 0.11);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--paper);
+      color: var(--ink);
+    }
+
+    a {
+      color: var(--accent-strong);
+    }
+
+    .page {
+      width: min(1080px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      font-weight: 760;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    .topbar a {
+      font-size: 0.93rem;
+      color: var(--muted);
+      text-decoration: none;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .editor,
+    .side-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .editor {
+      min-width: 0;
+      padding: 18px;
+    }
+
+    .side-panel {
+      padding: 16px;
+    }
+
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(1.65rem, 4vw, 2.45rem);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .lede {
+      margin: 0 0 20px;
+      max-width: 64ch;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    label {
+      display: grid;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 650;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: #fffefb;
+      color: var(--ink);
+      font: inherit;
+      outline: none;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(30, 102, 87, 0.14);
+    }
+
+    input {
+      min-height: 44px;
+      padding: 0 12px;
+    }
+
+    textarea {
+      min-height: 48vh;
+      resize: vertical;
+      padding: 14px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 1rem;
+      line-height: 1.55;
+      white-space: pre;
+      overflow: auto;
+    }
+
+    .field-stack {
+      display: grid;
+      gap: 14px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    button,
+    .button-link {
+      min-height: 42px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 0 14px;
+      background: #fffdf8;
+      color: var(--ink);
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: white;
+    }
+
+    button.primary:hover,
+    button.primary:focus-visible {
+      background: var(--accent-strong);
+    }
+
+    button:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+    }
+
+    .status {
+      margin-top: 14px;
+      min-height: 24px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .status.is-error {
+      color: var(--danger);
+    }
+
+    .diagnostics {
+      margin: 12px 0 0;
+      padding-left: 20px;
+      color: var(--danger);
+      line-height: 1.45;
+    }
+
+    .side-panel h2 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      letter-spacing: 0;
+    }
+
+    .side-panel p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .side-actions {
+      display: grid;
+      gap: 10px;
+    }
+
+    .qr-box {
+      display: grid;
+      place-items: center;
+      min-height: 260px;
+      margin-top: 16px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 8px;
+      background: #fffefb;
+      padding: 14px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .qr-box canvas {
+      width: min(100%, 256px) !important;
+      height: auto !important;
+    }
+
+    .import-link {
+      margin-top: 12px;
+      word-break: break-all;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .meta {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 840px) {
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .page {
+        width: min(100% - 20px, 1080px);
+        padding-top: 16px;
+      }
+
+      .topbar {
+        margin-bottom: 18px;
+      }
+
+      textarea {
+        min-height: 42vh;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">Sharp11</div>
+      <a href="./index.html">Home</a>
+    </header>
+
+    <h1>Chart Grid Editor</h1>
+    <p class="lede">Write a Sharp Eleven chart grid, validate the syntax, then generate a QR code to import it into the app. This editor uses the same parser bundle as Sharp Eleven.</p>
+
+    <div class="workspace">
+      <section class="editor" aria-label="Chart editor">
+        <div class="field-stack">
+          <label>
+            Chart title
+            <input id="chart-title" type="text" autocomplete="off" value="Untitled chart">
+          </label>
+          <label>
+            Chart grid
+            <textarea id="chart-text" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off">Dm7 G7 | Cmaj7
+Cmaj7 | %</textarea>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="validate-button" class="primary" type="button">Validate syntax</button>
+          <button id="qr-button" type="button">Generate QR code</button>
+          <button id="copy-gpt-button" type="button">Copy for Sharp Eleven GPT</button>
+          <a class="button-link" href="https://chatgpt.com/g/g-69e912c9fa2c8191b2c5cd0414d80032-sharp-eleven-app" target="_blank" rel="noopener noreferrer">Open Sharp Eleven GPT</a>
+        </div>
+
+        <div id="status" class="status" role="status" aria-live="polite">Ready.</div>
+        <ul id="diagnostics" class="diagnostics" hidden></ul>
+      </section>
+
+      <aside class="side-panel" aria-label="Import QR code">
+        <h2>Import QR code</h2>
+        <p>Generate a QR code after validation, then scan it with your phone. The QR opens Sharp Eleven and creates the chart.</p>
+        <div class="side-actions">
+          <button id="copy-link-button" type="button" disabled>Copy import link</button>
+          <a id="open-app-link" class="button-link" href="#" hidden>Open in Sharp Eleven</a>
+        </div>
+        <div id="qr-box" class="qr-box">No QR code yet.</div>
+        <div id="import-link" class="import-link" hidden></div>
+        <div id="bundle-meta" class="meta">Loading parser bundle...</div>
+      </aside>
+    </div>
+  </main>
+
+  <script type="module">
+    import { validateChartTextForSite } from './assets/generated/sharp-eleven-chart-editor-api.js';
+
+    const GPT_URL = 'https://chatgpt.com/g/g-69e912c9fa2c8191b2c5cd0414d80032-sharp-eleven-app';
+    const titleInput = document.getElementById('chart-title');
+    const textInput = document.getElementById('chart-text');
+    const validateButton = document.getElementById('validate-button');
+    const qrButton = document.getElementById('qr-button');
+    const copyGptButton = document.getElementById('copy-gpt-button');
+    const copyLinkButton = document.getElementById('copy-link-button');
+    const openAppLink = document.getElementById('open-app-link');
+    const status = document.getElementById('status');
+    const diagnostics = document.getElementById('diagnostics');
+    const qrBox = document.getElementById('qr-box');
+    const importLink = document.getElementById('import-link');
+    const bundleMeta = document.getElementById('bundle-meta');
+
+    let lastValidation = null;
+
+    function setStatus(message, isError = false) {
+      status.textContent = message;
+      status.classList.toggle('is-error', isError);
+    }
+
+    function clearQr() {
+      qrBox.textContent = 'No QR code yet.';
+      importLink.hidden = true;
+      importLink.textContent = '';
+      copyLinkButton.disabled = true;
+      openAppLink.hidden = true;
+      openAppLink.href = '#';
+    }
+
+    function renderDiagnostics(items) {
+      diagnostics.replaceChildren();
+      diagnostics.hidden = items.length === 0;
+      for (const item of items) {
+        const li = document.createElement('li');
+        li.textContent = `Line ${item.line}, column ${item.column}: ${item.message}`;
+        diagnostics.append(li);
+      }
+    }
+
+    function getPayload() {
+      return {
+        version: 1,
+        title: titleInput.value,
+        text: textInput.value
+      };
+    }
+
+    function validate() {
+      lastValidation = validateChartTextForSite(getPayload());
+      renderDiagnostics(lastValidation.diagnostics);
+      clearQr();
+
+      if (!lastValidation.ok) {
+        setStatus('Syntax needs attention before a QR code can be generated.', true);
+        return lastValidation;
+      }
+
+      const barLabel = lastValidation.barCount === 1 ? 'bar' : 'bars';
+      const encodedSize = lastValidation.encodedPayload.length;
+      setStatus(`Syntax looks good: ${lastValidation.barCount} ${barLabel}. Compressed payload: ${encodedSize} characters.`);
+      return lastValidation;
+    }
+
+    async function writeClipboard(text) {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+      const fallback = document.createElement('textarea');
+      fallback.value = text;
+      fallback.setAttribute('readonly', '');
+      fallback.style.position = 'fixed';
+      fallback.style.left = '-9999px';
+      document.body.append(fallback);
+      fallback.select();
+      document.execCommand('copy');
+      fallback.remove();
+    }
+
+    async function generateQr() {
+      const validation = lastValidation?.ok ? lastValidation : validate();
+      if (!validation.ok) return;
+
+      qrBox.replaceChildren();
+      const canvas = document.createElement('canvas');
+      qrBox.append(canvas);
+
+      if (!window.QRCode?.toCanvas) {
+        qrBox.textContent = 'QR library failed to load. You can still copy the import link.';
+      } else {
+        await window.QRCode.toCanvas(canvas, validation.importUrl, {
+          errorCorrectionLevel: 'M',
+          margin: 2,
+          width: 256
+        });
+      }
+
+      importLink.hidden = false;
+      importLink.textContent = validation.importUrl;
+      copyLinkButton.disabled = false;
+      openAppLink.hidden = false;
+      openAppLink.href = validation.importUrl;
+      setStatus('QR code generated.');
+    }
+
+    function buildGptPrompt() {
+      return [
+        'Please help me correct this Sharp Eleven chart grid.',
+        'Use Sharp Eleven chart text syntax. Return only the corrected grid unless you need to explain an ambiguity.',
+        '',
+        `Title: ${titleInput.value.trim() || 'Untitled chart'}`,
+        '',
+        textInput.value
+      ].join('\n');
+    }
+
+    validateButton.addEventListener('click', validate);
+    qrButton.addEventListener('click', () => {
+      generateQr().catch((error) => setStatus(error instanceof Error ? error.message : String(error), true));
+    });
+    copyGptButton.addEventListener('click', () => {
+      writeClipboard(buildGptPrompt())
+        .then(() => setStatus(`Copied a correction prompt. Open Sharp Eleven GPT: ${GPT_URL}`))
+        .catch((error) => setStatus(error instanceof Error ? error.message : String(error), true));
+    });
+    copyLinkButton.addEventListener('click', () => {
+      const validation = lastValidation?.ok ? lastValidation : validate();
+      if (!validation.ok) return;
+      writeClipboard(validation.importUrl)
+        .then(() => setStatus('Import link copied.'))
+        .catch((error) => setStatus(error instanceof Error ? error.message : String(error), true));
+    });
+
+    titleInput.addEventListener('input', () => {
+      lastValidation = null;
+      clearQr();
+    });
+    textInput.addEventListener('input', () => {
+      lastValidation = null;
+      clearQr();
+    });
+
+    fetch('./assets/generated/sharp-eleven-chart-editor-api.metadata.json')
+      .then((response) => response.ok ? response.json() : null)
+      .then((metadata) => {
+        if (!metadata) {
+          bundleMeta.textContent = 'Parser bundle metadata unavailable.';
+          return;
+        }
+        bundleMeta.textContent = `Parser bundle from Sharp Eleven ${metadata.appVersion}, commit ${metadata.gitCommit}.`;
+      })
+      .catch(() => {
+        bundleMeta.textContent = 'Parser bundle metadata unavailable.';
+      });
+  </script>
+</body>
+</html>
