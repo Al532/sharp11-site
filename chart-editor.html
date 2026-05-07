@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chart Grid Editor - Sharp11</title>
   <meta name="description" content="Write and validate Sharp Eleven chart grids, then import them into the app with a QR code.">
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js" defer></script>
+  <script src="./assets/vendor/qrcode-generator.js" defer></script>
   <style>
     :root {
       color-scheme: light;
@@ -235,7 +235,9 @@
       text-align: center;
     }
 
-    .qr-box canvas {
+    .qr-box canvas,
+    .qr-box svg,
+    .qr-box img {
       width: min(100%, 256px) !important;
       height: auto !important;
     }
@@ -410,18 +412,14 @@ Cmaj7 | %</textarea>
       const validation = lastValidation?.ok ? lastValidation : validate();
       if (!validation.ok) return;
 
-      qrBox.replaceChildren();
-      const canvas = document.createElement('canvas');
-      qrBox.append(canvas);
-
-      if (!window.QRCode?.toCanvas) {
-        qrBox.textContent = 'QR library failed to load. You can still copy the import link.';
+      if (typeof window.qrcode !== 'function') {
+        qrBox.textContent = 'QR generator failed to load. You can still copy the import link.';
       } else {
-        await window.QRCode.toCanvas(canvas, validation.importUrl, {
-          errorCorrectionLevel: 'M',
-          margin: 2,
-          width: 256
-        });
+        const qr = window.qrcode(0, 'M');
+        qr.addData(validation.importUrl);
+        qr.make();
+        qrBox.replaceChildren();
+        qrBox.innerHTML = qr.createSvgTag(6, 2, 'Sharp Eleven chart import QR code', validation.title);
       }
 
       importLink.hidden = false;
