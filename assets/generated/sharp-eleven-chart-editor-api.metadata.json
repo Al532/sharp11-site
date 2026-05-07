@@ -1,6 +1,6 @@
 {
   "generatedFrom": "SharpElevenApp",
-  "appVersion": "1.1.69",
+  "appVersion": "1.1.70",
   "gitCommit": "6642f9a95a81",
   "sourceFingerprint": "sha256:85a301b511d3bc8dcf4f840dbb6ecb1a7834fc69af71b3a82232fd029fb2ca52",
   "entry": "chart/chart-text-site-api.ts"
