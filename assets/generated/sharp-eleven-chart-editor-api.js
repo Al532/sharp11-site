@@ -904,7 +904,7 @@ function je(e, r = []) {
     diagnostics: i.diagnostics
   };
 }
-const j = 1, ke = "io.github.al532.sharpelevenapp", Ae = "chart-import", y = "lzw1.", C = "json1.";
+const j = 1, ke = "sharp11", Ae = "chart-import", y = "lzw1.", C = "json1.";
 function $(e) {
   const r = e && typeof e == "object" ? e : {};
   return {
