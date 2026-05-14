@@ -3,22 +3,13 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Chart Grid Editor - Sharp11</title>
+  <title>Chart Grid Editor - Sharp Eleven</title>
   <meta name="description" content="Write and validate Sharp Eleven chart grids, then import them into the app with a QR code.">
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./theme.css">
   <script src="./assets/vendor/qrcode-generator.js" defer></script>
   <style>
     :root {
-      color-scheme: light;
-      --paper: #fbfaf7;
-      --ink: #20201d;
-      --muted: #6d6a61;
-      --line: #ded8ca;
-      --line-strong: #c9bfae;
-      --accent: #1e6657;
-      --accent-strong: #12483d;
-      --danger: #a53b2e;
-      --panel: #ffffff;
-      --shadow: 0 18px 42px rgba(40, 36, 28, 0.11);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
@@ -29,12 +20,12 @@
     body {
       margin: 0;
       min-height: 100vh;
-      background: var(--paper);
-      color: var(--ink);
+      background: var(--ui-bg);
+      color: var(--ui-text);
     }
 
     a {
-      color: var(--accent-strong);
+      color: var(--ui-accent-strong);
     }
 
     .page {
@@ -52,14 +43,32 @@
     }
 
     .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ui-text);
       font-weight: 760;
       font-size: 1rem;
       letter-spacing: 0;
     }
 
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .topbar-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+
     .topbar a {
       font-size: 0.93rem;
-      color: var(--muted);
+      color: var(--ui-text-muted);
       text-decoration: none;
     }
 
@@ -72,10 +81,10 @@
 
     .editor,
     .side-panel {
-      background: var(--panel);
-      border: 1px solid var(--line);
+      background: var(--ui-surface);
+      border: 1px solid var(--ui-border);
       border-radius: 8px;
-      box-shadow: var(--shadow);
+      box-shadow: var(--ui-shadow-soft);
     }
 
     .editor {
@@ -97,33 +106,41 @@
     .lede {
       margin: 0 0 20px;
       max-width: 64ch;
-      color: var(--muted);
+      color: var(--ui-text-muted);
       line-height: 1.55;
     }
 
     label {
       display: grid;
       gap: 7px;
-      color: var(--muted);
+      color: var(--ui-text-muted);
+      font-size: 0.86rem;
+      font-weight: 650;
+    }
+
+    .field-label {
+      color: var(--ui-text-muted);
       font-size: 0.86rem;
       font-weight: 650;
     }
 
     input,
-    textarea {
+    textarea,
+    select {
       width: 100%;
-      border: 1px solid var(--line-strong);
+      border: 1px solid var(--ui-border-strong);
       border-radius: 8px;
-      background: #fffefb;
-      color: var(--ink);
+      background: var(--ui-surface-input);
+      color: var(--ui-text);
       font: inherit;
       outline: none;
     }
 
     input:focus,
-    textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(30, 102, 87, 0.14);
+    textarea:focus,
+    select:focus {
+      border-color: var(--ui-accent);
+      box-shadow: 0 0 0 3px var(--ui-field-focus);
     }
 
     input {
@@ -147,6 +164,177 @@
       gap: 14px;
     }
 
+    .editor-grid-field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .chart-editor-insert-toolbar {
+      display: grid;
+      grid-template-columns: minmax(5.8rem, 0.9fr) auto auto minmax(6.4rem, 1fr);
+      gap: 8px;
+      align-items: end;
+    }
+
+    .chart-editor-insert-field {
+      display: grid;
+      min-width: 0;
+    }
+
+    .chart-editor-insert-field select,
+    .chart-editor-insert-button {
+      min-height: 38px;
+      border: 1px solid var(--ui-border);
+      border-radius: 8px;
+      background: var(--ui-chip-bg);
+      color: var(--ui-text);
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .chart-editor-insert-field select {
+      padding: 0 32px 0 10px;
+    }
+
+    .chart-editor-insert-button {
+      width: 42px;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .chart-editor-insert-field select:focus-visible,
+    .chart-editor-insert-button:focus-visible {
+      outline: 0;
+      border-color: var(--ui-accent);
+      box-shadow: 0 0 0 3px var(--ui-field-focus);
+    }
+
+    .chart-editor-canonical-chords .canonical-chord-list {
+      margin-top: 0;
+    }
+
+    .canonical-chord-list {
+      border: 1px solid var(--ui-border);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--ui-surface-strong) 78%, var(--ui-bg) 22%);
+      overflow: hidden;
+    }
+
+    .canonical-chord-list[open] {
+      position: fixed;
+      inset: 0;
+      z-index: 1200;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      border-radius: 0;
+      background: var(--ui-surface-strong);
+      box-shadow: none;
+      overflow: hidden;
+    }
+
+    .canonical-chord-list-summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 10px 12px;
+      color: var(--ui-accent-cool);
+      font-size: 0.9rem;
+      font-weight: 800;
+      background: var(--ui-chip-bg);
+    }
+
+    .canonical-chord-list-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .canonical-chord-list-summary::before {
+      content: '\25B6';
+      display: inline-block;
+      margin-right: 0.45rem;
+      transition: transform 0.15s ease;
+    }
+
+    .canonical-chord-list[open] .canonical-chord-list-summary::before {
+      transform: rotate(90deg);
+    }
+
+    .canonical-chord-list[open] .canonical-chord-list-summary {
+      flex: 0 0 auto;
+      border-bottom: 1px solid var(--ui-border);
+      padding-top: calc(0.8rem + env(safe-area-inset-top, 0px));
+      padding-bottom: 0.8rem;
+    }
+
+    .canonical-chord-list[open] .canonical-chord-list-summary::after {
+      content: 'Close';
+      float: right;
+      color: var(--ui-text-muted);
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .canonical-chord-list-body {
+      display: grid;
+      gap: 0.75rem;
+      padding: 12px;
+      color: var(--ui-text-muted);
+      font-size: 0.88rem;
+    }
+
+    .canonical-chord-list[open] .canonical-chord-list-body {
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .canonical-chord-section h3 {
+      margin: 0 0 0.45rem;
+      color: var(--ui-text-soft);
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .canonical-chord-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+      gap: 0.35rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .canonical-chord-entry {
+      display: grid;
+      gap: 0.25rem;
+      align-content: start;
+      min-width: 0;
+      padding: 0.45rem 0.55rem;
+      border: 1px solid var(--ui-border);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--ui-bg) 86%, var(--ui-accent) 14%);
+    }
+
+    .canonical-chord-symbol {
+      color: var(--ui-accent-warm);
+      font-weight: 800;
+    }
+
+    .canonical-chord-aliases {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.34rem;
+    }
+
+    .canonical-chord-aliases code {
+      color: var(--ui-text-faint);
+      font-size: 0.75em;
+    }
+
     .actions {
       display: flex;
       flex-wrap: wrap;
@@ -157,11 +345,11 @@
     button,
     .button-link {
       min-height: 42px;
-      border: 1px solid var(--line-strong);
+      border: 1px solid var(--ui-border-strong);
       border-radius: 8px;
       padding: 0 14px;
-      background: #fffdf8;
-      color: var(--ink);
+      background: var(--ui-control-bg);
+      color: var(--ui-text);
       font: inherit;
       font-weight: 700;
       text-decoration: none;
@@ -172,14 +360,14 @@
     }
 
     button.primary {
-      border-color: var(--accent);
-      background: var(--accent);
-      color: white;
+      border-color: var(--ui-accent);
+      background: var(--ui-accent);
+      color: var(--ui-text-inverse);
     }
 
     button.primary:hover,
     button.primary:focus-visible {
-      background: var(--accent-strong);
+      background: var(--ui-accent-strong);
     }
 
     button:disabled {
@@ -190,18 +378,62 @@
     .status {
       margin-top: 14px;
       min-height: 24px;
-      color: var(--muted);
+      color: var(--ui-text-muted);
       line-height: 1.45;
     }
 
     .status.is-error {
-      color: var(--danger);
+      color: var(--ui-danger-text);
+    }
+
+    .gpt-help-dialog {
+      position: fixed;
+      inset: 0;
+      z-index: 1400;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background: color-mix(in srgb, var(--ui-bg) 58%, transparent);
+    }
+
+    .gpt-help-dialog[hidden] {
+      display: none;
+    }
+
+    .gpt-help-dialog-panel {
+      width: min(100%, 420px);
+      border: 1px solid var(--ui-border);
+      border-radius: 8px;
+      background: var(--ui-surface);
+      box-shadow: var(--ui-shadow-soft);
+      padding: 18px;
+    }
+
+    .gpt-help-dialog-panel h2 {
+      margin: 0 0 10px;
+      color: var(--ui-text);
+      font-size: 1.05rem;
+      letter-spacing: 0;
+    }
+
+    .gpt-help-dialog-panel p {
+      margin: 0;
+      color: var(--ui-text-muted);
+      line-height: 1.5;
+    }
+
+    .gpt-help-dialog-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
     }
 
     .diagnostics {
       margin: 12px 0 0;
       padding-left: 20px;
-      color: var(--danger);
+      color: var(--ui-danger-text);
       line-height: 1.45;
     }
 
@@ -213,7 +445,7 @@
 
     .side-panel p {
       margin: 0 0 14px;
-      color: var(--muted);
+      color: var(--ui-text-muted);
       line-height: 1.5;
     }
 
@@ -227,11 +459,11 @@
       place-items: center;
       min-height: 260px;
       margin-top: 16px;
-      border: 1px dashed var(--line-strong);
+      border: 1px dashed var(--ui-border-strong);
       border-radius: 8px;
-      background: #fffefb;
+      background: var(--ui-surface-input);
       padding: 14px;
-      color: var(--muted);
+      color: var(--ui-text-muted);
       text-align: center;
     }
 
@@ -246,12 +478,12 @@
       margin-top: 12px;
       word-break: break-all;
       font-size: 0.82rem;
-      color: var(--muted);
+      color: var(--ui-text-muted);
     }
 
     .meta {
       margin-top: 18px;
-      color: var(--muted);
+      color: var(--ui-text-muted);
       font-size: 0.78rem;
       line-height: 1.45;
     }
@@ -270,6 +502,14 @@
         margin-bottom: 18px;
       }
 
+      .topbar-actions {
+        gap: 8px;
+      }
+
+      .chart-editor-insert-toolbar {
+        grid-template-columns: minmax(0, 1fr) 42px 42px minmax(0, 1fr);
+      }
+
       textarea {
         min-height: 42vh;
       }
@@ -279,8 +519,13 @@
 <body>
   <main class="page">
     <header class="topbar">
-      <div class="brand">Sharp11</div>
-      <a href="./index.html">Home</a>
+      <div class="brand" aria-label="Sharp Eleven">
+        <img class="brand-logo" src="./logo/brand-symbol.png" alt="" width="38" height="38" aria-hidden="true">
+        <span>Sharp Eleven</span>
+      </div>
+      <div class="topbar-actions">
+        <a href="./index.html">Home</a>
+      </div>
     </header>
 
     <h1>Chart Grid Editor</h1>
@@ -293,18 +538,131 @@
             Chart title
             <input id="chart-title" type="text" autocomplete="off" value="Untitled chart">
           </label>
-          <label>
-            Chart grid
-            <textarea id="chart-text" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off">Dm7 G7 | Cmaj7
-Cmaj7 | %</textarea>
-          </label>
+          <div class="editor-grid-field">
+            <span class="field-label">Chart grid</span>
+            <div class="chart-editor-insert-toolbar" role="toolbar" aria-label="Insert into chart text">
+              <label class="chart-editor-insert-field">
+                <select id="chart-editor-chord-menu" aria-label="Insert chord quality">
+                  <option value="">Chord</option>
+                  <option value="maj7">maj7</option>
+                  <option value="6">6</option>
+                  <option value="m7">m7</option>
+                  <option value="m6">m6</option>
+                  <option value="m7b5">m7b5</option>
+                  <option value="dim7">dim7</option>
+                  <option value="7">7</option>
+                  <option value="7b9">7b9</option>
+                  <option value="7alt">7alt</option>
+                  <option value="7#11">7#11</option>
+                  <option value="7#5">7#5</option>
+                  <option value="7#9">7#9</option>
+                  <option value="7sus">7sus</option>
+                  <option value="13sus">13sus</option>
+                </select>
+              </label>
+              <button id="chart-editor-insert-bar-button" class="chart-editor-insert-button" type="button" aria-label="Insert measure bar">|</button>
+              <button id="chart-editor-insert-repeat-button" class="chart-editor-insert-button" type="button" aria-label="Insert repeat sign">%</button>
+              <label class="chart-editor-insert-field">
+                <select id="chart-editor-form-menu" aria-label="Insert form marker">
+                  <option value="">Form</option>
+                  <option value="@fine">@fine</option>
+                  <option value="@coda">@coda</option>
+                  <option value="@to-coda">@to-coda</option>
+                  <option value="@segno">@segno</option>
+                  <option value="@dc-al-fine">@dc-al-fine</option>
+                  <option value="@ds-al-fine">@ds-al-fine</option>
+                  <option value="@dc-al-coda">@dc-al-coda</option>
+                  <option value="@ds-al-coda">@ds-al-coda</option>
+                  <option value="@dc-on-cue">@dc-on-cue</option>
+                </select>
+              </label>
+            </div>
+            <textarea id="chart-text" spellcheck="false" autocomplete="off" autocapitalize="off" wrap="off">@key C
+@4/4
+
+Dm7 | G7 | Cmaj7 | %
+Dm7 | G7 | Cmaj7 | %</textarea>
+          </div>
+          <div class="chart-editor-canonical-chords">
+            <details class="canonical-chord-list">
+              <summary class="canonical-chord-list-summary">Chord reference</summary>
+              <div class="canonical-chord-list-body">
+                <section class="canonical-chord-section">
+                  <h3>Common qualities</h3>
+                  <ul class="canonical-chord-grid">
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">m7</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">maj7</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>△7</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">6</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">m7b5</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>halfdim</code><code>ø7</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">maj</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">dim7</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>dim</code><code>°7</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">m</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">m6</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">maj#11</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>lyd</code><code>maj7#11</code><code>△#11</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">m9</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">m11</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">mMaj7</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>mmaj7</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">maj9</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>△9</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">69</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>6/9</code></span></li>
+                  </ul>
+                </section>
+                <section class="canonical-chord-section">
+                  <h3>Common dominants</h3>
+                  <ul class="canonical-chord-grid">
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">7</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">7b9</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">7sus</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">13#11</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>13lyd</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">7#9</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">7b9b13</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>7b13</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">7#5</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>13#5</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">7alt</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>alt</code><code>13alt</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">13</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>7mixo</code><code>13mixo</code><code>mixo</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">9</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">9sus</code></li>
+                  </ul>
+                </section>
+                <section class="canonical-chord-section">
+                  <h3>Other qualities</h3>
+                  <ul class="canonical-chord-grid">
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">mb6</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">aug</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">add9</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">sus</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">maj7#5</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">m69</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>m6/9</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">m9b5</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">2</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">dimMaj7</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">maj13</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">mMaj9</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>mmaj9</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">5</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">madd9</code></li>
+                  </ul>
+                </section>
+                <section class="canonical-chord-section">
+                  <h3>Other dominants</h3>
+                  <ul class="canonical-chord-grid">
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">13b9</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>7oct</code><code>oct</code><code>13oct</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">9#11</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">7#11</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>7lyd</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">13sus</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">7b9sus</code><span class="canonical-chord-aliases" aria-label="Accepted aliases"><code>13b9sus</code></span></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">9#5</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">7b13sus</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">13#9</code></li>
+                    <li class="canonical-chord-entry"><code class="canonical-chord-symbol">7susadd3</code></li>
+                  </ul>
+                </section>
+              </div>
+            </details>
+          </div>
         </div>
 
         <div class="actions">
           <button id="validate-button" class="primary" type="button">Validate syntax</button>
           <button id="qr-button" type="button">Generate QR code</button>
-          <button id="copy-gpt-button" type="button">Copy for Sharp Eleven GPT</button>
-          <a class="button-link" href="https://chatgpt.com/g/g-69e912c9fa2c8191b2c5cd0414d80032-sharp-eleven-app" target="_blank" rel="noopener noreferrer">Open Sharp Eleven GPT</a>
+          <button id="copy-gpt-button" type="button">Ask Sharp11 GPT for help</button>
         </div>
 
         <div id="status" class="status" role="status" aria-live="polite">Ready.</div>
@@ -325,6 +683,17 @@ Cmaj7 | %</textarea>
     </div>
   </main>
 
+  <div id="gpt-help-dialog" class="gpt-help-dialog" role="dialog" aria-modal="true" aria-labelledby="gpt-help-dialog-title" hidden>
+    <div class="gpt-help-dialog-panel">
+      <h2 id="gpt-help-dialog-title">Prompt copied</h2>
+      <p>A prompt with your current chart grid is ready in your clipboard. Open Sharp11 GPT, then paste it there to get correction advice.</p>
+      <div class="gpt-help-dialog-actions">
+        <button id="gpt-help-cancel-button" type="button">Stay here</button>
+        <button id="gpt-help-open-button" class="primary" type="button">Open Sharp11 GPT</button>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { validateChartTextForSite } from './assets/generated/sharp-eleven-chart-editor-api.js';
 
@@ -335,14 +704,22 @@ Cmaj7 | %</textarea>
     const qrButton = document.getElementById('qr-button');
     const copyGptButton = document.getElementById('copy-gpt-button');
     const copyLinkButton = document.getElementById('copy-link-button');
+    const chordMenu = document.getElementById('chart-editor-chord-menu');
+    const formMenu = document.getElementById('chart-editor-form-menu');
+    const insertBarButton = document.getElementById('chart-editor-insert-bar-button');
+    const insertRepeatButton = document.getElementById('chart-editor-insert-repeat-button');
     const openAppLink = document.getElementById('open-app-link');
     const status = document.getElementById('status');
     const diagnostics = document.getElementById('diagnostics');
     const qrBox = document.getElementById('qr-box');
     const importLink = document.getElementById('import-link');
     const bundleMeta = document.getElementById('bundle-meta');
+    const gptHelpDialog = document.getElementById('gpt-help-dialog');
+    const gptHelpCancelButton = document.getElementById('gpt-help-cancel-button');
+    const gptHelpOpenButton = document.getElementById('gpt-help-open-button');
 
     let lastValidation = null;
+    let lastGptTrigger = null;
 
     function setStatus(message, isError = false) {
       status.textContent = message;
@@ -390,6 +767,34 @@ Cmaj7 | %</textarea>
       const encodedSize = lastValidation.encodedPayload.length;
       setStatus(`Syntax looks good: ${lastValidation.barCount} ${barLabel}. Compressed payload: ${encodedSize} characters.`);
       return lastValidation;
+    }
+
+    function getEditorInsertText(textarea, rawText, { suppressLeadingPadding = false } = {}) {
+      const value = textarea.value || '';
+      const start = textarea.selectionStart ?? value.length;
+      const end = textarea.selectionEnd ?? start;
+      const before = value[start - 1] || '';
+      const after = value[end] || '';
+
+      if (rawText === '|') {
+        const leading = start > 0 && before && !/\s/.test(before) ? ' ' : '';
+        const trailing = after && /\s/.test(after) ? '' : ' ';
+        return `${leading}|${trailing}`;
+      }
+
+      const leading = !suppressLeadingPadding && start > 0 && before && !/[\s|(]/.test(before) ? ' ' : '';
+      const trailing = after && !/[\s|)]/.test(after) ? ' ' : '';
+      return `${leading}${rawText}${trailing}`;
+    }
+
+    function insertIntoEditor(rawText, options = {}) {
+      const text = String(rawText || '');
+      if (!textInput || !text) return;
+      const start = textInput.selectionStart ?? textInput.value.length;
+      const end = textInput.selectionEnd ?? start;
+      textInput.setRangeText(getEditorInsertText(textInput, text, options), start, end, 'end');
+      textInput.dispatchEvent(new Event('input', { bubbles: true }));
+      textInput.focus();
     }
 
     async function writeClipboard(text) {
@@ -441,14 +846,61 @@ Cmaj7 | %</textarea>
       ].join('\n');
     }
 
+    function setGptHelpDialogOpen(isOpen) {
+      gptHelpDialog.hidden = !isOpen;
+      if (isOpen) {
+        gptHelpOpenButton.focus();
+      } else if (lastGptTrigger) {
+        lastGptTrigger.focus();
+      }
+    }
+
+    function showGptPasteInstructions(trigger) {
+      lastGptTrigger = trigger || null;
+      setGptHelpDialogOpen(true);
+    }
+
+    function openSharpElevenGpt() {
+      const gptWindow = window.open(GPT_URL, '_blank');
+      if (gptWindow) {
+        gptWindow.opener = null;
+      } else {
+        window.location.href = GPT_URL;
+      }
+    }
+
     validateButton.addEventListener('click', validate);
+    formMenu.addEventListener('change', () => {
+      insertIntoEditor(formMenu.value || '');
+      formMenu.value = '';
+    });
+    chordMenu.addEventListener('change', () => {
+      insertIntoEditor(chordMenu.value || '', { suppressLeadingPadding: true });
+      chordMenu.value = '';
+    });
+    insertBarButton.addEventListener('click', () => insertIntoEditor('|'));
+    insertRepeatButton.addEventListener('click', () => insertIntoEditor('%'));
     qrButton.addEventListener('click', () => {
       generateQr().catch((error) => setStatus(error instanceof Error ? error.message : String(error), true));
     });
-    copyGptButton.addEventListener('click', () => {
+    copyGptButton.addEventListener('click', (event) => {
       writeClipboard(buildGptPrompt())
-        .then(() => setStatus(`Copied a correction prompt. Open Sharp Eleven GPT: ${GPT_URL}`))
+        .then(() => {
+          setStatus('Copied a correction prompt for Sharp11 GPT.');
+          showGptPasteInstructions(event.currentTarget);
+        })
         .catch((error) => setStatus(error instanceof Error ? error.message : String(error), true));
+    });
+    gptHelpCancelButton.addEventListener('click', () => setGptHelpDialogOpen(false));
+    gptHelpOpenButton.addEventListener('click', () => {
+      setGptHelpDialogOpen(false);
+      openSharpElevenGpt();
+    });
+    gptHelpDialog.addEventListener('click', (event) => {
+      if (event.target === gptHelpDialog) setGptHelpDialogOpen(false);
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !gptHelpDialog.hidden) setGptHelpDialogOpen(false);
     });
     copyLinkButton.addEventListener('click', () => {
       const validation = lastValidation?.ok ? lastValidation : validate();
@@ -479,6 +931,7 @@ Cmaj7 | %</textarea>
       .catch(() => {
         bundleMeta.textContent = 'Parser bundle metadata unavailable.';
       });
+
   </script>
 </body>
 </html>

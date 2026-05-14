@@ -1,0 +1,10 @@
+:root {
+  color-scheme: light;
+
+  /* Five source colors: page, text, accent, support, danger. */
+  --c-bg: #f5f1e6;
+  --c-text: #1a1a1a;
+  --c-accent: #c19a6b;
+  --c-secondary: #dcd6c8;
+  --c-danger: #c1121f;
+}

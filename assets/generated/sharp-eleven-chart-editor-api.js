@@ -1,82 +1,180 @@
-function v(e) {
-  return e === void 0 ? void 0 : JSON.parse(JSON.stringify(e));
+function Y(e, t = "") {
+  return `${String(e || "").toUpperCase()}${t || ""}`;
 }
-function u(e, r = "") {
-  return typeof e == "string" ? e : e == null ? r : String(e);
+function le(e) {
+  return String(e || "").replace(/\u266d[\ufe0e\ufe0f]?/g, "b").replace(/\u266f[\ufe0e\ufe0f]?/g, "#").replace(/\u2013|\u2014/g, "-").trim();
 }
-function I(e, r = 0) {
-  const n = Number(e);
-  return Number.isFinite(n) ? n : r;
+function me(e) {
+  const t = le(e), r = t.match(/^@key(?:\s*[:=])?\s+([A-Ga-g])([b#]?)(?:-|m)?(?:\s*\|\s*|\s+|$)(.*)$/s);
+  if (r)
+    return {
+      body: String(r[3] || "").trim(),
+      keyName: Y(r[1] || "", r[2] || ""),
+      hasKeyTag: !0,
+      legacyKeyTag: !1,
+      errorMessage: null
+    };
+  const n = t.match(/^@([A-Ga-g])([b#]?)(?:-|m)?(?:\s*\|\s*|\s+|$)(.*)$/s);
+  return n ? {
+    body: String(n[3] || "").trim(),
+    keyName: Y(n[1] || "", n[2] || ""),
+    hasKeyTag: !0,
+    legacyKeyTag: !1,
+    errorMessage: null
+  } : /^key\s*(?::|=)/i.test(t) ? {
+    body: t,
+    keyName: null,
+    hasKeyTag: !0,
+    legacyKeyTag: !0,
+    errorMessage: "Use @key C or @C for key overrides."
+  } : {
+    body: t,
+    keyName: null,
+    hasKeyTag: !1,
+    legacyKeyTag: !1,
+    errorMessage: null
+  };
 }
-function S(e) {
+function x(e) {
+  return e === void 0 ? e : JSON.parse(JSON.stringify(e));
+}
+function f(e, t = "") {
+  return typeof e == "string" ? e : e == null ? t : String(e);
+}
+function R(e, t = 0) {
+  const r = Number(e);
+  return Number.isFinite(r) ? r : t;
+}
+function C(e) {
   return e && typeof e == "object" && !Array.isArray(e) ? e : {};
 }
-function b(e) {
+function g(e) {
   return Array.isArray(e) ? e : [];
 }
-const F = "1.0.0";
-function H(e = {}) {
-  const r = S(e);
+const he = "1.0.0";
+function fe(e = {}) {
+  const t = C(e);
   return {
-    ...v(r),
-    id: u(r.id),
-    title: u(r.title),
-    composer: u(r.composer),
-    primaryTimeSignature: u(r.primaryTimeSignature),
-    barCount: I(r.barCount, 0)
+    ...x(t),
+    id: f(t.id),
+    title: f(t.title),
+    composer: f(t.composer),
+    primaryTimeSignature: f(t.primaryTimeSignature),
+    barCount: R(t.barCount, 0)
   };
 }
-function Y(e = {}) {
+function pe(e = {}) {
   return {
-    ...v(S(e))
+    ...x(C(e))
   };
 }
-function Q(e = {}) {
-  const r = S(e);
+function be(e = {}) {
+  const t = C(e);
   return {
-    ...v(r),
-    id: u(r.id),
-    label: u(r.label),
-    occurrence: I(r.occurrence, 0),
-    barIds: b(r.barIds).map((n) => u(n)).filter(Boolean)
+    ...x(t),
+    id: f(t.id),
+    label: f(t.label),
+    occurrence: R(t.occurrence, 0),
+    barIds: g(t.barIds).map((r) => f(r)).filter(Boolean)
   };
 }
-function V(e = {}) {
-  const r = S(e);
+function ge(e = {}) {
+  const t = C(e);
   return {
-    ...v(r),
-    id: u(r.id),
-    index: I(r.index, 0),
-    sectionId: u(r.sectionId),
-    sectionLabel: u(r.sectionLabel),
-    timeSignature: r.timeSignature == null ? null : u(r.timeSignature),
-    endings: b(r.endings),
-    flags: b(r.flags).map((n) => u(n)).filter(Boolean),
-    directives: b(r.directives),
-    comments: b(r.comments).map((n) => u(n)).filter(Boolean),
-    textAnnotations: b(r.textAnnotations)
+    ...x(t),
+    id: f(t.id),
+    index: R(t.index, 0),
+    sectionId: f(t.sectionId),
+    sectionLabel: f(t.sectionLabel),
+    timeSignature: t.timeSignature == null ? null : f(t.timeSignature),
+    endings: g(t.endings),
+    flags: g(t.flags).map((r) => f(r)).filter(Boolean),
+    directives: g(t.directives),
+    comments: g(t.comments).map((r) => f(r)).filter(Boolean),
+    textAnnotations: g(t.textAnnotations)
   };
 }
-function E({
+function ye(e = {}, t = 0) {
+  const r = C(e), n = f(r.kind).trim(), s = C(r.anchor), o = f(s.beforeBarId).trim(), i = f(s.afterBarId).trim(), c = f(s.barId).trim();
+  return !n || !o && !i && !c ? null : {
+    ...x(r),
+    id: f(r.id, `boundary-${t + 1}`),
+    kind: n,
+    anchor: {
+      ...x(s),
+      type: f(s.type, "boundary"),
+      ...o ? { beforeBarId: o } : {},
+      ...i ? { afterBarId: i } : {},
+      ...c && !o && !i ? { barId: c } : {}
+    }
+  };
+}
+function $({
   metadata: e,
-  source: r,
-  sections: n,
-  bars: t,
-  layout: i = null
+  source: t,
+  sections: r,
+  bars: n,
+  boundaryEvents: s,
+  layout: o = null
 } = {}) {
+  const i = g(s).map((c, d) => ye(c, d)).filter((c) => !!c);
   return {
-    schemaVersion: F,
-    metadata: H(e),
-    source: Y(r),
-    sections: b(n).map(Q),
-    bars: b(t).map(V),
-    layout: i == null ? null : v(i)
+    schemaVersion: he,
+    metadata: fe(e),
+    source: pe(t),
+    sections: g(r).map(be),
+    bars: g(n).map(ge),
+    ...i.length ? { boundaryEvents: i } : {},
+    layout: o == null ? null : x(o)
   };
 }
-function J(e) {
-  return E(e);
+function Se(e) {
+  return $(e);
 }
-const q = {
+const l = Object.freeze({
+  codaStart: "coda_start",
+  toCoda: "to_coda",
+  segno: "segno",
+  fine: "fine",
+  dcAlCoda: "dc_al_coda",
+  dsAlCoda: "ds_al_coda",
+  dcAlFine: "dc_al_fine",
+  dsAlFine: "ds_al_fine",
+  dcAlEnding: "dc_al_ending",
+  dsAlEnding: "ds_al_ending",
+  dcOnCue: "dc_on_cue",
+  repeatHint: "repeat_hint"
+});
+l.dcAlCoda, l.dsAlCoda, l.dcAlFine, l.dsAlFine, l.dcAlEnding, l.dsAlEnding, l.dcOnCue;
+function Te(e) {
+  return e === void 0 ? e : JSON.parse(JSON.stringify(e));
+}
+function xe(e, t = "") {
+  return typeof e == "string" ? e : e == null ? t : String(e);
+}
+function ve(e, t, r) {
+  return `${e}-${t}-${r + 1}`.replace(/[^\w-]+/g, "-");
+}
+function Ce({
+  kind: e,
+  beforeBarId: t = "",
+  afterBarId: r = "",
+  data: n = {},
+  index: s = 0
+}) {
+  const o = t || r;
+  return {
+    ...Te(n),
+    id: xe(n.id, ve(e, o, s)),
+    kind: e,
+    anchor: {
+      type: "boundary",
+      ...t ? { beforeBarId: t } : {},
+      ...r ? { afterBarId: r } : {}
+    }
+  };
+}
+const Oe = {
   "": "maj",
   "-": "m",
   "-#5": "mb6",
@@ -115,7 +213,7 @@ const q = {
   6: "6",
   69: "69",
   7: "7",
-  "7#11": "13#11",
+  "7#11": "7#11",
   "7#5": "7#5",
   "7#9": "7#9",
   "7#9#11": "7alt",
@@ -133,7 +231,7 @@ const q = {
   "7b9b13": "7b9b13",
   "7b9b5": "7alt",
   "7b9sus": "7b9sus",
-  "7sus": "9sus",
+  "7sus": "7sus",
   // Validate against iReal examples: add3 means the third coexists with sus4.
   "7susadd3": "7susadd3",
   9: "9",
@@ -150,36 +248,33 @@ const q = {
   "o^7": "dimMaj7",
   o7: "dim7",
   sus: "sus"
-}, K = Object.freeze({
+}, Ee = Object.freeze({
   kind: "dominant",
   third: "3",
   fifth: "5",
   seventh: "b7",
   extension: "7"
-}), W = Object.freeze({
+}), Ie = Object.freeze(["9", "b9", "#9"]), N = Object.freeze(["b13", "13", "#11"]), ke = Object.freeze({
   maj: {
     kind: "major",
     third: "3",
     guideToneOverride: ["3", "5"],
-    colorToneOverride: [],
     pianoShapeOverride: ["3", "5", "1", "3"]
   },
   m: {
     kind: "minor",
     third: "b3",
     guideToneOverride: ["b3", "5"],
-    colorToneOverride: [],
     pianoShapeOverride: ["b3", "5", "1", "b3"]
   },
-  m7: { kind: "minor", third: "b3", seventh: "b7", extension: "7", colorToneOverride: ["5", "b7"] },
-  m9: { kind: "minor", third: "b3", seventh: "b7", extension: "9", colorToneOverride: ["5", "9"], pianoTopTone: "9" },
+  m7: { kind: "minor", third: "b3", seventh: "b7", extension: "7" },
+  m9: { kind: "minor", third: "b3", seventh: "b7", extension: "9" },
   m11: {
     kind: "minor",
     third: "b3",
     seventh: "b7",
     extension: "11",
     includeEleventh: !0,
-    colorToneOverride: ["5", "9", "11"],
     pianoShapeOverride: ["b3", "b7", "9", "11"]
   },
   m6: {
@@ -187,16 +282,14 @@ const q = {
     third: "b3",
     sixthReplacesSeventh: !0,
     extension: "6",
-    colorToneOverride: ["5", "9"],
-    pianoTopTone: "9"
+    colorToneOverride: ["5", "9"]
   },
   m69: {
     kind: "minor",
     third: "b3",
     sixthReplacesSeventh: !0,
     extension: "6/9",
-    colorToneOverride: ["5", "9"],
-    pianoTopTone: "9"
+    colorToneOverride: ["5", "9"]
   },
   madd9: {
     kind: "minor",
@@ -224,45 +317,34 @@ const q = {
     kind: "minor",
     third: "b3",
     seventh: "7",
-    extension: "9",
-    colorToneOverride: ["9", "5", "7"],
-    pianoShapeOverride: ["b3", "5", "7", "9"]
+    extension: "9"
   },
-  maj7: { kind: "major", third: "3", seventh: "7", extension: "9", colorToneOverride: ["5", "9"], pianoTopTone: "9" },
-  maj9: { kind: "major", third: "3", seventh: "7", extension: "9", colorToneOverride: ["5", "9"], pianoTopTone: "9" },
+  maj7: { kind: "major", third: "3", seventh: "7", extension: "9" },
+  maj9: { kind: "major", third: "3", seventh: "7", extension: "9" },
   maj13: {
     kind: "major",
     third: "3",
     seventh: "7",
-    extension: "13",
-    colorToneOverride: ["9", "13"],
-    pianoShapeOverride: ["3", "13", "7", "9"]
+    extension: "13"
   },
   "maj7#5": {
     kind: "major",
     third: "3",
     fifth: "#5",
     seventh: "7",
-    extension: "9",
-    colorToneOverride: ["#5", "9"],
-    pianoBodyTone: "#5",
-    pianoTopTone: "9"
+    extension: "9"
   },
   6: {
     kind: "major",
     third: "3",
     sixthReplacesSeventh: !0,
-    extension: "9",
-    colorToneOverride: ["5", "9"],
-    pianoTopTone: "9"
+    extension: "9"
   },
   69: {
     kind: "major",
     third: "3",
     sixthReplacesSeventh: !0,
-    extension: "9",
-    colorToneOverride: ["5", "9"],
-    pianoTopTone: "9"
+    extension: "9"
   },
   add9: {
     kind: "major",
@@ -280,19 +362,16 @@ const q = {
   5: {
     kind: "other",
     guideToneOverride: ["1", "5"],
-    colorToneOverride: [],
     pianoShapeOverride: ["1", "5", "1", "5"]
   },
   sus: {
     kind: "other",
     guideToneOverride: ["4", "5"],
-    colorToneOverride: ["1"],
     pianoShapeOverride: ["1", "4", "5", "1"]
   },
   aug: {
     kind: "other",
     guideToneOverride: ["3", "#5"],
-    colorToneOverride: ["1"],
     pianoShapeOverride: ["1", "3", "#5", "1"]
   },
   m7b5: {
@@ -309,15 +388,13 @@ const q = {
     fifth: "b5",
     seventh: "b7",
     guideToneOverride: ["b5", "b7"],
-    colorToneOverride: ["b3", "9"],
-    pianoShapeOverride: ["b3", "b5", "b7", "9"]
+    colorToneOverride: ["b3", "9"]
   },
   dim7: {
     kind: "diminished",
     third: "b3",
     fifth: "b5",
     seventh: "bb7",
-    colorToneOverride: ["b5"],
     pianoShapeOverride: ["b3", "b5", "6", "1"]
   },
   dimMaj7: {
@@ -325,9 +402,7 @@ const q = {
     third: "b3",
     fifth: "b5",
     seventh: "7",
-    guideToneOverride: ["b3", "7"],
-    colorToneOverride: ["b5"],
-    pianoShapeOverride: ["b3", "b5", "7", "1"]
+    guideToneOverride: ["b3", "7"]
   },
   "maj#11": {
     kind: "major",
@@ -340,16 +415,14 @@ const q = {
     colorToneOverride: ["9", "#11", "13"],
     pianoShapeOverride: ["3", "#11", "7", "9"]
   },
-  7: { kind: "dominant", extension: "7", colorToneOverride: ["5", "b7"] },
-  13: { kind: "dominant", extension: "13", pianoBodyTone: "13", pianoTopTone: "9" },
-  9: { kind: "dominant", extension: "9", pianoTopTone: "9" },
-  "7b9": { kind: "dominant", extension: "7", colorToneOverride: ["b9", "5"], pianoTopTone: "b9" },
+  7: { kind: "dominant", extension: "7" },
+  13: { kind: "dominant", extension: "13" },
+  9: { kind: "dominant", extension: "9" },
+  "7b9": { kind: "dominant", extension: "7", colorToneOverride: ["b9", "5"] },
   "7b9b13": {
     kind: "dominant",
     extension: "13",
-    colorToneOverride: ["b9", "b13"],
-    pianoBodyTone: "b13",
-    pianoTopTone: "b9"
+    colorToneOverride: ["b9", "b13"]
   },
   "7alt": {
     kind: "dominant",
@@ -357,7 +430,7 @@ const q = {
     colorToneOverride: ["b9", "#9", "b13"],
     pianoShapeOverride: ["3", "b13", "b7", "#9"]
   },
-  "13b9": { kind: "dominant", extension: "13", colorToneOverride: ["b9", "13"], pianoBodyTone: "13", pianoTopTone: "b9" },
+  "13b9": { kind: "dominant", extension: "13", colorToneOverride: ["b9", "13"] },
   "13#11": {
     kind: "dominant",
     extension: "13",
@@ -367,19 +440,15 @@ const q = {
     // but the piano shape keeps the older 13/9 shell.
     pianoShapeOverride: ["3", "13", "b7", "9"]
   },
-  "13#9": { kind: "dominant", extension: "13", colorToneOverride: ["#9", "13"], pianoShapeOverride: ["3", "13", "b7", "#9"] },
-  "9#11": {
-    kind: "dominant",
-    extension: "9",
-    includeEleventh: !0,
-    colorToneOverride: ["9", "#11"],
-    pianoShapeOverride: ["3", "#11", "b7", "9"]
-  },
-  "7#5": { kind: "dominant", extension: "9", fifth: "#5", colorToneOverride: ["9", "#5"], pianoBodyTone: "#5", pianoTopTone: "9" },
-  "9#5": { kind: "dominant", extension: "9", fifth: "#5", colorToneOverride: ["9", "#5"], pianoBodyTone: "#5", pianoTopTone: "9" },
+  "13#9": { kind: "dominant", extension: "13", colorToneOverride: ["#9", "13"] },
+  "9#11": { kind: "dominant", extension: "9", includeEleventh: !0, colorToneOverride: ["9", "#11"] },
+  "7#11": { kind: "dominant", extension: "7", includeEleventh: !0, colorToneOverride: ["#11"] },
+  "7#5": { kind: "dominant", extension: "9", fifth: "#5" },
+  "9#5": { kind: "dominant", extension: "9", fifth: "#5" },
   "7#9": { kind: "dominant", extension: "7", colorToneOverride: ["#9", "b7"], pianoShapeOverride: ["3", "b7", "#9"] },
-  "13sus": { kind: "dominant", sus: !0, extension: "13", pianoBodyTone: "13", pianoTopTone: "9" },
-  "9sus": { kind: "dominant", sus: !0, extension: "9", pianoTopTone: "9" },
+  "7sus": { kind: "dominant", sus: !0, extension: "7" },
+  "13sus": { kind: "dominant", sus: !0, extension: "13" },
+  "9sus": { kind: "dominant", sus: !0, extension: "9" },
   "7susadd3": {
     kind: "dominant",
     extension: "7",
@@ -392,58 +461,79 @@ const q = {
     sus: !0,
     extension: "7",
     guideToneOverride: ["4", "b7"],
-    colorToneOverride: ["5", "b13"],
-    pianoShapeOverride: ["4", "b13", "b7", "1"]
+    colorToneOverride: ["5", "b13"]
   },
   "7b9sus": {
     kind: "dominant",
     sus: !0,
     extension: "7",
     guideToneOverride: ["b7"],
-    colorToneOverride: ["4", "5", "b9"],
-    pianoShapeOverride: ["4", "5", "b7", "b9"]
+    colorToneOverride: ["4", "5", "b9"]
   }
 });
-function X(e) {
+function _e(e) {
   return e.sus ? "4" : e.third || (e.kind === "minor" ? "b3" : "3");
 }
 function Z(e) {
   return e.fifth || "5";
 }
-function ee(e) {
+function J(e) {
   return e.sixthReplacesSeventh ? "6" : e.seventh || (e.kind === "major" ? "7" : "b7");
 }
-function re(e) {
-  return e.extension === "13";
+function Ae(e) {
+  return I([
+    ...ee(e),
+    ...e.colorToneOverride || []
+  ], N);
 }
-function k(e) {
-  return e.guideToneOverride ? e.guideToneOverride.slice() : [X(e), ee(e)];
+function j(e) {
+  if (e.guideToneOverride) return e.guideToneOverride.slice();
+  const t = [_e(e), J(e)], r = Z(e);
+  if (!Ae(e) || !t.includes(r))
+    return t;
+  const n = t.filter((s) => s !== r);
+  return w(n, J(e)), n;
 }
-function ne(e) {
-  if (e.colorToneOverride) return e.colorToneOverride.slice();
-  const r = [];
-  return (e.extension === "9" || e.extension === "11" || e.extension === "13") && r.push("9"), e.includeEleventh && r.push("11"), e.extension === "13" && r.push("13"), re(e) || r.push(Z(e)), r;
+function I(e, t) {
+  const r = new Set(e);
+  return t.some((n) => r.has(n));
 }
-function te(e, r) {
-  return e.length === r.length && e.every((n, t) => n === r[t]);
+function w(e, t) {
+  e.includes(t) || e.push(t);
 }
-function oe(e = W) {
-  const r = {
-    dom: k(K)
-  }, n = {}, t = {}, i = {};
-  for (const [o, s] of Object.entries(e)) {
-    const a = k(s), c = ne(s);
-    s.kind === "dominant" ? (t[o] = c, te(a, r.dom) || (i[o] = a)) : (r[o] = a, n[o] = c);
+function Me(e, t) {
+  return e.filter((r) => r !== t);
+}
+function ee(e) {
+  const t = [];
+  return (e.extension === "9" || e.extension === "11" || e.extension === "13") && t.push("9"), e.includeEleventh && t.push("11"), e.extension === "13" && t.push("13"), t;
+}
+function Ne(e) {
+  const t = j(e);
+  let r = [...new Set(e.colorToneOverride || ee(e))].filter((o) => !t.includes(o));
+  const n = () => [...t, ...r], s = Z(e);
+  return I(n(), N) && (r = Me(r, s)), !I(n(), Ie) && !t.includes("1") && w(r, "1"), !I(n(), N) && !t.includes(s) && w(r, s), r;
+}
+function je(e, t) {
+  return e.length === t.length && e.every((r, n) => r === t[n]);
+}
+function we(e = ke) {
+  const t = {
+    dom: j(Ee)
+  }, r = t.dom || [], n = {}, s = {}, o = {};
+  for (const [i, c] of Object.entries(e)) {
+    const d = j(c), u = Ne(c);
+    c.kind === "dominant" ? (s[i] = u, je(d, r) || (o[i] = d)) : (t[i] = d, n[i] = u);
   }
   return {
-    GUIDE_TONES: r,
+    GUIDE_TONES: t,
     COLOR_TONES: n,
-    DOMINANT_COLOR_TONES: t,
-    DOMINANT_GUIDE_TONES: i
+    DOMINANT_COLOR_TONES: s,
+    DOMINANT_GUIDE_TONES: o
   };
 }
-oe();
-const M = Object.freeze({
+we();
+const z = Object.freeze({
   maj: ["maj", ""],
   m: ["m"],
   m7: ["m7"],
@@ -478,18 +568,20 @@ const M = Object.freeze({
   "7b9b13": ["7b9b13", "7b13"],
   "7alt": ["7alt", "alt", "13alt"],
   "13b9": ["13b9", "7oct", "oct", "13oct"],
-  "13#11": ["13#11", "7#11", "7lyd", "13lyd"],
+  "13#11": ["13#11", "13lyd"],
   "13#9": ["13#9"],
   "9#11": ["9#11"],
+  "7#11": ["7#11", "7lyd"],
   "7#5": ["7#5", "13#5"],
   "9#5": ["9#5"],
   "7#9": ["7#9"],
+  "7sus": ["7sus"],
   "13sus": ["13sus"],
-  "9sus": ["9sus", "7sus"],
+  "9sus": ["9sus"],
   "7susadd3": ["7susadd3"],
   "7b13sus": ["7b13sus"],
   "7b9sus": ["7b9sus", "13b9sus"]
-}), B = [
+}), te = [
   "7",
   "13",
   "9",
@@ -500,82 +592,125 @@ const M = Object.freeze({
   "13#11",
   "13#9",
   "9#11",
+  "7#11",
   "7#5",
   "9#5",
   "7#9",
+  "7sus",
   "13sus",
   "9sus",
   "7susadd3",
   "7b13sus",
   "7b9sus"
-], ie = Object.keys(M).filter((e) => !B.includes(e));
-function A(e) {
-  return Object.fromEntries(e.map((r) => [
-    r,
-    (M[r] || []).filter((n) => n !== r)
+], Be = Object.keys(z).filter((e) => !te.includes(e));
+function Q(e) {
+  return Object.fromEntries(e.map((t) => [
+    t,
+    (z[t] || []).filter((r) => r !== t)
   ]));
 }
-const se = {
+const Ue = {
   // Canonical chord-quality names and every accepted textual input alias.
-  CHORD_QUALITY_INPUT_ALIASES: M,
+  CHORD_QUALITY_INPUT_ALIASES: z,
   // Compatibility views derived from CHORD_QUALITY_INPUT_ALIASES.
-  DOMINANT_QUALITY_ALIASES: A(B),
-  QUALITY_CATEGORY_ALIASES: A(ie)
-}, T = "N.C.", R = "4/4", D = 120;
-function f(e) {
+  DOMINANT_QUALITY_ALIASES: Q(te),
+  QUALITY_CATEGORY_ALIASES: Q(Be)
+}, O = "N.C.", P = "4/4", re = 120, Re = "@", $e = /^@(\d+\/4)$/;
+function T(e) {
   return e === void 0 ? e : JSON.parse(JSON.stringify(e));
 }
-function z(e) {
+function ze(e) {
+  return String(e || "").trim().toLowerCase().replace(/^@/, "").replace(/\s+/g, "-").replace(/_/g, "-");
+}
+function Pe(e, t, r, n) {
+  const s = String(e || "").trim();
+  if (!s.startsWith(Re)) return null;
+  const o = ze(s), i = o.match(/^(\d+)x$/);
+  if (i)
+    return {
+      kind: l.repeatHint,
+      text: s,
+      column: r,
+      times: Math.max(2, Number(i[1]))
+    };
+  const c = o.match(/^(dc|ds)-al-(\d+)(?:st|nd|rd|th)?-ending$/);
+  if (c)
+    return {
+      kind: c[1] === "dc" ? l.dcAlEnding : l.dsAlEnding,
+      text: s,
+      column: r,
+      ending: Number(c[2])
+    };
+  const d = {
+    coda: l.codaStart,
+    "coda-start": l.codaStart,
+    "to-coda": l.toCoda,
+    segno: l.segno,
+    fine: l.fine,
+    "dc-al-coda": l.dcAlCoda,
+    "ds-al-coda": l.dsAlCoda,
+    "dc-al-fine": l.dcAlFine,
+    "ds-al-fine": l.dsAlFine,
+    "dc-on-cue": l.dcOnCue
+  }[o];
+  return d ? { kind: d, text: s, column: r } : (n.push({
+    severity: "error",
+    line: t,
+    column: r,
+    message: `Unknown boundary marker "${s}".`
+  }), null);
+}
+function ne(e) {
   return String(e ?? "").trim().toLowerCase().replace(/\s+/g, "");
 }
-function ae() {
-  const e = /* @__PURE__ */ new Map(), r = (n, t) => {
-    const i = z(n), o = String(t ?? "").trim();
-    !i && !o || e.set(i, o);
+function De() {
+  const e = /* @__PURE__ */ new Map(), t = (r, n) => {
+    const s = ne(r), o = String(n ?? "").trim();
+    !s && !o || e.set(s, o);
   };
-  return Object.entries(q || {}).forEach(([n, t]) => {
-    r(n, t), r(t, t);
-  }), Object.entries(se.CHORD_QUALITY_INPUT_ALIASES || {}).forEach(([n, t]) => {
-    r(n, n), t.forEach((i) => r(i, n));
+  return Object.entries(Oe || {}).forEach(([r, n]) => {
+    t(r, n), t(n, n);
+  }), Object.entries(Ue.CHORD_QUALITY_INPUT_ALIASES || {}).forEach(([r, n]) => {
+    t(r, r), n.forEach((s) => t(s, r));
   }), e;
 }
-const ce = ae();
-function _(e) {
-  const r = String(e || "").trim();
-  return r ? `${r.charAt(0).toUpperCase()}${r.slice(1)}` : "";
+const Le = De();
+function V(e) {
+  const t = String(e || "").trim();
+  return t ? `${t.charAt(0).toUpperCase()}${t.slice(1)}` : "";
 }
-function de(e, r) {
-  let n = Math.abs(e), t = Math.abs(r);
-  for (; t; ) {
-    const i = n % t;
-    n = t, t = i;
+function Fe(e, t) {
+  let r = Math.abs(e), n = Math.abs(t);
+  for (; n; ) {
+    const s = r % n;
+    r = n, n = s;
   }
-  return n || 1;
+  return r || 1;
 }
-function le(e, r) {
-  return Math.max(1, Math.floor(e * r / de(e, r)));
+function Ge(e, t) {
+  return Math.max(1, Math.floor(e * t / Fe(e, t)));
 }
-function ue(e) {
+function Ke(e) {
   return String(e || "").trim().toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "chart";
 }
-function me(e, r = []) {
-  const n = new Set(Array.from(r).map((i) => String(i || "").trim()).filter(Boolean)), t = `user-chart-${ue(e)}`;
-  if (!n.has(t)) return t;
-  for (let i = 2; i < 1e4; i += 1) {
-    const o = `${t}-${i}`;
-    if (!n.has(o)) return o;
+function He(e, t = []) {
+  const r = new Set(Array.from(t).map((s) => String(s || "").trim()).filter(Boolean)), n = `user-chart-${Ke(e)}`;
+  if (!r.has(n)) return n;
+  for (let s = 2; s < 1e4; s += 1) {
+    const o = `${n}-${s}`;
+    if (!r.has(o)) return o;
   }
-  return `${t}-${Date.now()}`;
+  return `${n}-${Date.now()}`;
 }
-function P(e, r = []) {
-  return E({
+function oe(e, t = []) {
+  return $({
     metadata: {
-      id: me(e, r),
+      id: He(e, t),
       title: String(e || "").trim() || "Untitled chart",
       composer: "",
       sourceKey: "",
-      primaryTimeSignature: R,
-      tempo: D,
+      primaryTimeSignature: P,
+      tempo: re,
       barCount: 0
     },
     source: {},
@@ -589,93 +724,133 @@ function P(e, r = []) {
     }
   });
 }
-function he(e, r, n, t) {
-  const i = String(e || "").trim();
-  if (!i) return null;
-  if (/^(?:N\.C\.|NC)$/i.test(i))
+function Ye(e, t, r, n) {
+  const s = String(e || "").trim();
+  if (!s) return null;
+  if (/^(?:N\.C\.|NC)$/i.test(s))
     return {
-      symbol: T,
-      root: T,
+      symbol: O,
+      root: O,
       quality: "",
       bass: null,
       isNoChord: !0
     };
-  const o = i.match(/^([A-Ga-g](?:b|#)?)(.*?)(?:\/([A-Ga-g](?:b|#)?))?$/);
+  const o = s.match(/^([A-Ga-g](?:b|#)?)(.*?)(?:\/([A-Ga-g](?:b|#)?))?$/);
   if (!o)
-    return t.push({
+    return n.push({
       severity: "error",
-      line: r,
-      column: n,
-      message: `Unknown chord token "${i}".`
+      line: t,
+      column: r,
+      message: `Unknown chord token "${s}".`
     }), null;
-  const [, s, a = "", c = ""] = o, m = _(s), d = _(c), l = ce.get(z(a));
-  return l === void 0 ? (t.push({
+  const [, i = "", c = "", d = ""] = o, u = V(i), p = V(d), m = Le.get(ne(c));
+  return m === void 0 ? (n.push({
     severity: "error",
-    line: r,
-    column: n + s.length,
-    message: `Unknown chord quality "${a}" in "${i}".`
+    line: t,
+    column: r + i.length,
+    message: `Unknown chord quality "${c}" in "${s}".`
   }), null) : {
-    symbol: `${m}${l}${d ? `/${d}` : ""}`,
-    root: m,
-    quality: l,
-    bass: d || null
+    symbol: `${u}${m}${p ? `/${p}` : ""}`,
+    root: u,
+    quality: m,
+    bass: p || null
   };
 }
-function pe(e, r, n, t) {
-  const i = [];
+function Je(e, t, r, n) {
+  const s = [];
   let o = 0;
   for (; o < e.length; ) {
-    const s = e[o];
-    if (/\s/.test(s)) {
+    const i = e[o] || "";
+    if (/\s/.test(i)) {
       o += 1;
       continue;
     }
-    if (s === "(") {
-      const c = e.indexOf(")", o + 1);
-      if (c < 0) {
-        t.push({
+    if (i === "(") {
+      const d = e.indexOf(")", o + 1);
+      if (d < 0) {
+        n.push({
           severity: "error",
-          line: r,
-          column: n + o + 1,
+          line: t,
+          column: r + o + 1,
           message: "Missing closing parenthesis."
         });
         break;
       }
-      i.push({
-        raw: e.slice(o + 1, c).trim(),
-        column: n + o + 1,
+      s.push({
+        raw: e.slice(o + 1, d).trim(),
+        column: r + o + 1,
         group: !0
-      }), o = c + 1;
+      }), o = d + 1;
       continue;
     }
-    if (s === ")") {
-      t.push({
+    if (i === ")") {
+      n.push({
         severity: "error",
-        line: r,
-        column: n + o + 1,
+        line: t,
+        column: r + o + 1,
         message: "Unexpected closing parenthesis."
       }), o += 1;
       continue;
     }
-    let a = o + 1;
-    for (; a < e.length && !/\s|\(|\)/.test(e[a]); ) a += 1;
-    i.push({
-      raw: e.slice(o, a),
-      column: n + o + 1,
+    let c = o + 1;
+    for (; c < e.length && !/\s|\(|\)/.test(e[c] || ""); ) c += 1;
+    s.push({
+      raw: e.slice(o, c),
+      column: r + o + 1,
       group: !1
-    }), o = a;
+    }), o = c;
   }
-  return i;
+  return s;
 }
-function be(e, r, n, t) {
-  const i = pe(e, r, n, t), o = i.find((d) => d.raw.trim() === "%");
-  if (o)
-    return o.group || i.length > 1 ? (t.push({
+function Qe(e, t, r, n) {
+  const s = Je(e, t, r, n), o = s.map((a, h) => ({
+    token: a,
+    tokenIndex: h,
+    match: a.raw.trim().match($e)
+  })).filter((a) => !!a.match);
+  o.forEach((a) => {
+    (a.token.group || a.tokenIndex !== 0) && n.push({
       severity: "error",
-      line: r,
-      column: o.column,
+      line: t,
+      column: a.token.column,
+      message: "Place meter markers at the beginning of a measure."
+    });
+  });
+  const i = new Set(o.map((a) => a.tokenIndex)), c = o[0]?.match?.[1] || "", d = s.filter((a, h) => !i.has(h)).map((a, h) => ({
+    token: a,
+    tokenIndex: s.indexOf(a),
+    marker: Pe(a.raw, t, a.column, n)
+  })).filter((a) => !!a.marker);
+  d.forEach((a) => {
+    a.token.group && n.push({
+      severity: "error",
+      line: t,
+      column: a.token.column,
+      message: "Boundary markers cannot be placed inside a subdivision group."
+    });
+  });
+  const u = new Set(d.map((a) => a.tokenIndex)), p = s.filter((a, h) => !i.has(h) && !u.has(h)), m = s.findIndex((a, h) => !i.has(h) && !u.has(h)), S = (() => {
+    for (let a = s.length - 1; a >= 0; a -= 1)
+      if (!i.has(a) && !u.has(a)) return a;
+    return -1;
+  })(), v = d.filter((a) => m >= 0 && a.tokenIndex < m).map((a) => a.marker), b = d.filter((a) => m >= 0 && a.tokenIndex > S).map((a) => a.marker), E = d.filter(() => m < 0).map((a) => a.marker);
+  d.filter((a) => m >= 0 && a.tokenIndex >= m && a.tokenIndex <= S).forEach((a) => {
+    n.push({
+      severity: "error",
+      line: t,
+      column: a.token.column,
+      message: "Place boundary markers before the first chord or after the last chord in a measure."
+    });
+  });
+  const _ = p.find((a) => a.raw.trim() === "%");
+  if (_)
+    return _.group || p.length > 1 ? (n.push({
+      severity: "error",
+      line: t,
+      column: _.column,
       message: "The repeat sign % must be alone in its measure."
-    }), { tokens: [] }) : {
+    }), { tokens: [], timeSignature: c, boundaryBefore: v, boundaryAfter: b, boundaryOnly: E }) : {
+      timeSignature: c,
       tokens: [{
         kind: "repeat_previous_bar",
         symbol: "%",
@@ -684,70 +859,73 @@ function be(e, r, n, t) {
         chartTextEventIndex: 0,
         chartTextGroupSize: 1,
         chartTextGroupIndex: 0
-      }]
+      }],
+      boundaryBefore: v,
+      boundaryAfter: b,
+      boundaryOnly: E
     };
-  const s = i.map((d) => {
-    const l = d.group ? d.raw.split(/\s+/).map((h) => h.trim()).filter(Boolean) : [d.raw];
-    return d.group && l.length === 0 && t.push({
+  const A = p.map((a) => {
+    const h = a.group ? a.raw.split(/\s+/).map((y) => y.trim()).filter(Boolean) : [a.raw];
+    return a.group && h.length === 0 && n.push({
       severity: "error",
-      line: r,
-      column: d.column,
+      line: t,
+      column: a.column,
       message: "Empty subdivision group."
     }), {
-      chords: l.map((h, p) => he(h, r, d.column + (d.group ? d.raw.indexOf(h) + 1 : 0), t)).filter((h) => !!h),
-      column: d.column,
-      groupSize: Math.max(1, l.length)
+      chords: h.map((y) => Ye(y, t, a.column + (a.group ? a.raw.indexOf(y) + 1 : 0), n)).filter((y) => !!y),
+      column: a.column,
+      groupSize: Math.max(1, h.length)
     };
-  }).filter((d) => d.chords.length > 0), a = s.reduce((d, l) => le(d, l.groupSize), 1), c = Math.max(1, s.length * a), m = [];
-  return s.forEach((d, l) => {
-    const g = Math.max(1, a / Math.max(1, d.chords.length));
-    d.chords.forEach((h, p) => {
-      m.push({
-        ...h,
-        sourceCellIndex: Math.min(c - 1, l * a + Math.floor(p * g)),
-        sourceCellCount: c,
-        chartTextEventIndex: l,
-        chartTextGroupSize: d.chords.length,
-        chartTextGroupIndex: p
+  }).filter((a) => a.chords.length > 0), M = A.reduce((a, h) => Ge(a, h.groupSize), 1), F = Math.max(1, A.length * M), G = [];
+  return A.forEach((a, h) => {
+    const K = Math.max(1, M / Math.max(1, a.chords.length));
+    a.chords.forEach((y, H) => {
+      G.push({
+        ...y,
+        sourceCellIndex: Math.min(F - 1, h * M + Math.floor(H * K)),
+        sourceCellCount: F,
+        chartTextEventIndex: h,
+        chartTextGroupSize: a.chords.length,
+        chartTextGroupIndex: H
       });
     });
-  }), { tokens: m };
+  }), { tokens: G, timeSignature: c, boundaryBefore: v, boundaryAfter: b, boundaryOnly: E };
 }
-function fe(e) {
-  const r = [];
-  let n = 0, t = 0;
-  for (let i = 0; i <= e.length; i += 1) {
-    const o = e[i] || "|";
-    if (o === "(" && (t += 1), o === ")" && (t = Math.max(0, t - 1)), o !== "|" || t > 0) continue;
-    const s = e.slice(n, i).trim();
-    if (s) {
-      const a = e.slice(n, i).search(/\S/);
-      r.push({
-        content: s,
-        column: n + Math.max(0, a) + 1
+function Ve(e) {
+  const t = [];
+  let r = 0, n = 0;
+  for (let s = 0; s <= e.length; s += 1) {
+    const o = e[s] || "|";
+    if (o === "(" && (n += 1), o === ")" && (n = Math.max(0, n - 1)), o !== "|" || n > 0) continue;
+    const i = e.slice(r, s).trim();
+    if (i) {
+      const c = e.slice(r, s).search(/\S/);
+      t.push({
+        content: i,
+        column: r + Math.max(0, c) + 1
       });
-    } else n > 0 && i < e.length && r.push({
+    } else r > 0 && s < e.length && t.push({
       content: "",
-      column: n + 1
+      column: r + 1
     });
-    n = i + 1;
+    r = s + 1;
   }
-  return r;
+  return t;
 }
-function Te(e) {
-  const r = [], n = String(e || "").replace(/\r\n?/g, `
+function qe(e) {
+  const t = [], r = String(e || "").replace(/\r\n?/g, `
 `).split(`
-`).map((t, i) => ({ measures: fe(t).map((s) => be(s.content, i + 1, s.column - 1, r)) })).filter((t) => t.measures.length > 0);
-  return n.length === 0 && r.push({
+`).map((n, s) => ({ measures: Ve(n).map((i) => Qe(i.content, s + 1, i.column - 1, t)) })).filter((n) => n.measures.length > 0);
+  return r.length === 0 && t.push({
     severity: "error",
     line: 1,
     column: 1,
     message: "Enter at least one measure."
-  }), { lines: n, diagnostics: r };
+  }), { lines: r, diagnostics: t };
 }
-function ge(e, r) {
-  const n = {
-    ...r ? f(r) : {},
+function We(e, t) {
+  const r = {
+    ...t ? T(t) : {},
     kind: "chord",
     symbol: e.symbol,
     root: e.root,
@@ -759,9 +937,9 @@ function ge(e, r) {
     chartTextGroupSize: e.chartTextGroupSize,
     chartTextGroupIndex: e.chartTextGroupIndex
   };
-  return e.isNoChord && (n.symbol = T, n.root = T, n.quality = "", n.bass = null), n;
+  return e.isNoChord && (r.symbol = O, r.root = O, r.quality = "", r.bass = null), r;
 }
-function ve(e) {
+function Xe(e) {
   return {
     kind: "repeat_previous_bar",
     symbol: "%",
@@ -772,276 +950,355 @@ function ve(e) {
     chartTextGroupIndex: 0
   };
 }
-function Se(e) {
+function Ze(e) {
   return e.tokens.length === 1 && e.tokens[0]?.kind === "repeat_previous_bar";
 }
-function N(e, r) {
-  const n = Array.from({ length: Math.max(1, r) }, () => ({
+function D(e) {
+  return e.tokens.length > 0;
+}
+function q(e, t) {
+  const r = Array.from({ length: Math.max(1, t) }, () => ({
     bars: "",
     annots: [],
     comments: [],
     spacer: 0,
     chord: null
   }));
-  return e.forEach((t) => {
-    const i = Math.max(0, Math.min(n.length - 1, Number(t.sourceCellIndex || 0)));
-    n[i] = {
-      ...n[i],
+  return e.forEach((n) => {
+    const s = Math.max(0, Math.min(r.length - 1, Number(n.sourceCellIndex || 0)));
+    r[s] = {
+      ...r[s],
       chord: {
-        symbol: t.symbol,
-        root: t.root,
-        modifier: t.quality,
-        bass: t.bass,
-        display_prefix: t.displayPrefix || ""
+        symbol: n.symbol,
+        root: n.root,
+        modifier: n.quality,
+        bass: n.bass,
+        display_prefix: n.displayPrefix || ""
       }
     };
-  }), n;
+  }), r;
 }
-function Oe(e, r) {
-  const n = Number(e);
-  return Number.isFinite(n) ? n : r + 1;
+function et(e, t) {
+  const r = Number(e);
+  return Number.isFinite(r) ? r : t + 1;
 }
-function xe(e, r, n) {
-  const t = Array.isArray(e.sections) ? e.sections : [];
-  if (r?.sectionId) {
-    const o = t.find((s) => s.id === r.sectionId);
+function tt(e, t, r) {
+  const n = Array.isArray(e.sections) ? e.sections : [];
+  if (t?.sectionId) {
+    const o = n.find((i) => i.id === t.sectionId);
     if (o) return o;
   }
-  const i = t.find((o) => r?.id && o.barIds?.includes(r.id));
-  return i || t[Math.min(Math.max(0, n), Math.max(0, t.length - 1))] || null;
+  const s = n.find((o) => t?.id && o.barIds?.includes(t.id));
+  return s || n[Math.min(Math.max(0, r), Math.max(0, n.length - 1))] || null;
 }
-function ye(e, r) {
-  const t = (Array.isArray(e.sections) && e.sections.length ? e.sections : [{ id: "section-1", label: "", occurrence: 1, barIds: [] }]).map((o) => ({
-    ...f(o),
+function rt(e, t) {
+  const n = (Array.isArray(e.sections) && e.sections.length ? e.sections : [{ id: "section-1", label: "", occurrence: 1, barIds: [] }]).map((o) => ({
+    ...T(o),
     barIds: []
-  })), i = new Map(t.map((o) => [o.id, o]));
-  return r.forEach((o, s) => {
-    const a = e.bars?.[s] || null, c = xe(e, a, s), m = c && i.get(c.id) || t[t.length - 1];
-    m && (m.barIds.push(o.id), o.sectionId = m.id, o.sectionLabel = String(m.label || ""));
-  }), t.filter((o) => o.barIds.length > 0);
+  })), s = new Map(n.map((o) => [o.id, o]));
+  return t.forEach((o, i) => {
+    const c = e.bars?.[i] || null, d = tt(e, c, i), u = d && s.get(d.id) || n[n.length - 1];
+    u && (u.barIds.push(o.id), o.sectionId = u.id, o.sectionLabel = String(u.label || ""));
+  }), n.filter((o) => o.barIds.length > 0);
 }
-function Ce(e, r, n, {
-  resetLayoutStartCellIndex: t = !0,
-  previousBar: i = null
+function nt(e, t, r, {
+  resetLayoutStartCellIndex: n = !0,
+  previousBar: s = null
 } = {}) {
-  const o = r || {}, s = Array.isArray(o?.notation?.tokens) ? o.notation.tokens : [], a = Se(e), c = i?.playback || null, m = i?.notation || null, d = Math.max(
+  const o = t || {}, i = Array.isArray(o?.notation?.tokens) ? o.notation.tokens : [], c = Ze(e), d = s?.playback || null, u = s?.notation || null, p = Math.max(
     1,
     Number(
-      c?.cellSlots?.length || m?.tokens?.find((p) => Number.isInteger(p?.sourceCellCount))?.sourceCellCount || e.tokens[0]?.sourceCellCount || 4
+      d?.cellSlots?.length || u?.tokens?.find((b) => Number.isInteger(b?.sourceCellCount))?.sourceCellCount || e.tokens[0]?.sourceCellCount || 4
     )
-  ), l = a ? [ve(d)] : e.tokens.map((p, G) => ge(p, s[G])), g = Math.max(1, Number(l[0]?.sourceCellCount || 1)), h = {
-    ...f(o),
-    id: String(o.id || `bar-${n + 1}`),
-    index: t ? n + 1 : Oe(o.index, n),
+  ), m = c ? [Xe(p)] : e.tokens.map((b, E) => We(b, i[E])), S = Math.max(1, Number(m[0]?.sourceCellCount || 1)), v = {
+    ...T(o),
+    id: String(o.id || `bar-${r + 1}`),
+    index: n ? r + 1 : et(o.index, r),
+    timeSignature: e.timeSignature || o.timeSignature || "",
     notation: {
-      kind: a ? "single_bar_repeat" : l.length === 1 && l[0].symbol === T ? "no_chord" : "written",
-      tokens: l
+      kind: c ? "single_bar_repeat" : m.length === 1 && m[0]?.symbol === O ? "no_chord" : "written",
+      tokens: m
     },
     playback: {
-      ...o.playback ? f(o.playback) : {},
-      slots: a ? f(c?.slots || []) : l.filter((p) => p.symbol !== T),
-      cellSlots: a ? f(c?.cellSlots || N([], g)) : N(l, g)
+      ...o.playback ? T(o.playback) : {},
+      slots: c ? T(d?.slots || []) : m.filter((b) => b.symbol !== O),
+      cellSlots: c ? T(d?.cellSlots || q([], S)) : q(m, S)
     }
   };
-  return t && (h.layoutStartCellIndex = null), h;
+  return n && (v.layoutStartCellIndex = null), v;
 }
-function Ie(e, r) {
-  const n = e.flatMap((i) => i.measures), t = [];
-  return n.forEach((i, o) => {
-    t.push(Ce(i, r.bars?.[o], o, {
-      previousBar: t[o - 1] || r.bars?.[o - 1] || null
-    }));
-  }), t;
+function ot(e, t) {
+  const r = e.flatMap((o) => o.measures).filter(D), n = [];
+  let s = String(t.metadata?.primaryTimeSignature || P);
+  return r.forEach((o, i) => {
+    o.timeSignature && (s = o.timeSignature);
+    const c = nt(o, t.bars?.[i], i, {
+      previousBar: n[i - 1] || t.bars?.[i - 1] || null
+    });
+    c.timeSignature = s, n.push(c);
+  }), n;
 }
-function Ee(e, r, n) {
-  let t = 0;
-  const i = e.map((s) => {
-    const a = r.slice(t, t + s.measures.length);
-    return t += s.measures.length, {
-      barIds: a.map((c) => c.id)
+function st(e, t, r) {
+  return Ce({
+    kind: e.kind,
+    beforeBarId: t.beforeBarId || "",
+    afterBarId: t.afterBarId || "",
+    index: r,
+    data: {
+      ...e.ending ? { ending: e.ending } : {},
+      ...e.times ? { times: e.times } : {},
+      source: {
+        format: "sharp-eleven-chart-text",
+        text: e.text,
+        column: e.column
+      }
+    }
+  });
+}
+function it(e, t) {
+  const r = [];
+  let n = 0;
+  const s = (o, i) => {
+    !i.beforeBarId && !i.afterBarId || r.push(st(o, i, r.length));
+  };
+  return e.forEach((o) => {
+    o.measures.forEach((i) => {
+      if (D(i)) {
+        const u = t[n];
+        if (n += 1, !u) return;
+        i.boundaryBefore.forEach((p) => s(p, { beforeBarId: u.id })), i.boundaryAfter.forEach((p) => s(p, { afterBarId: u.id }));
+        return;
+      }
+      const c = t[n - 1] || null, d = t[n] || null;
+      i.boundaryOnly.forEach((u) => s(u, {
+        ...c ? { afterBarId: c.id } : {},
+        ...d ? { beforeBarId: d.id } : {}
+      }));
+    });
+  }), r;
+}
+function at(e, t, r) {
+  const n = r && typeof r == "object" ? T(r) : {}, s = n.systems && typeof n.systems == "object" ? n.systems : {}, o = n.sourceHints || (n.source === "ireal" && n.systems && typeof n.systems == "object" ? {
+    source: "ireal",
+    systemsRef: "layout.systems"
+  } : void 0);
+  let i = 0;
+  const c = e.map((u) => {
+    const p = u.measures.filter(D).length, m = t.slice(i, i + p);
+    return i += p, {
+      barIds: m.map((S) => S.id)
     };
-  }).filter((s) => s.barIds.length > 0), o = Math.max(1, ...i.map((s) => s.barIds.length));
+  }).filter((u) => u.barIds.length > 0), d = Math.max(1, ...c.map((u) => u.barIds.length));
   return {
-    ...n ? f(n) : {},
+    ...n,
+    source: "sharp-eleven-chart-text",
+    policy: "source-faithful",
+    generatedBy: "sharp-eleven-chart-text-v1",
+    ...o ? { sourceHints: o } : {},
     systems: {
-      ...n?.systems && typeof n.systems == "object" ? f(n.systems) : {},
-      cellsPerRow: o * 4,
-      rows: i
+      ...s,
+      cellsPerRow: d * 4,
+      rowCount: c.length,
+      rows: c
     }
   };
 }
-function Me(e, r) {
-  const n = J(r || P("Untitled chart")), { lines: t, diagnostics: i } = Te(e);
-  if (i.some((a) => a.severity === "error"))
+function ct(e, t) {
+  const r = Se(t || oe("Untitled chart")), n = me(e), s = n.hasKeyTag && !n.errorMessage ? n.body : e, { lines: o, diagnostics: i } = qe(s);
+  if (n.errorMessage && i.unshift({
+    severity: "error",
+    line: 1,
+    column: 1,
+    message: n.errorMessage
+  }), i.some((p) => p.severity === "error"))
     return {
-      documentDraft: n,
+      documentDraft: r,
       diagnostics: i
     };
-  const o = Ie(t, n), s = ye(n, o);
+  const c = ot(o, r), d = it(o, c), u = rt(r, c);
   return {
-    documentDraft: E({
-      ...n,
+    documentDraft: $({
+      ...r,
       metadata: {
-        ...n.metadata,
-        primaryTimeSignature: n.metadata?.primaryTimeSignature || R,
-        tempo: Number(n.metadata?.tempo || 0) > 0 ? Number(n.metadata.tempo) : D,
-        barCount: o.length
+        ...r.metadata,
+        sourceKey: n.keyName || r.metadata?.sourceKey || "",
+        primaryTimeSignature: r.metadata?.primaryTimeSignature || P,
+        tempo: Number(r.metadata?.tempo || 0) > 0 ? Number(r.metadata.tempo) : re,
+        barCount: c.length
       },
-      sections: s,
-      bars: o,
-      layout: Ee(t, o, n.layout)
+      sections: u,
+      bars: c,
+      boundaryEvents: d,
+      layout: at(o, c, r.layout)
     }),
     diagnostics: i
   };
 }
-function je(e, r = []) {
-  const n = String(e?.title || "").trim() || "Untitled chart", t = P(n, r), i = Me(String(e?.text || ""), t);
-  return i.diagnostics.some((o) => o.severity === "error") ? {
+function dt(e, t = []) {
+  const r = String(e?.title || "").trim() || "Untitled chart", n = oe(r, t), s = ct(String(e?.text || ""), n);
+  return s.diagnostics.some((o) => o.severity === "error") ? {
     document: null,
-    diagnostics: i.diagnostics
+    diagnostics: s.diagnostics
   } : {
-    document: i.documentDraft,
-    diagnostics: i.diagnostics
+    document: s.documentDraft,
+    diagnostics: s.diagnostics
   };
 }
-const j = 1, ke = "sharp11", Ae = "chart-import", y = "lzw1.", C = "json1.";
-function $(e) {
-  const r = e && typeof e == "object" ? e : {};
+const L = 1, ut = "sharp11", lt = "chart-import", B = "lzw1.", U = "json1.";
+function se(e) {
+  const t = e && typeof e == "object" ? e : {};
   return {
-    version: j,
-    title: String(r.title || "").trim() || "Untitled chart",
-    text: String(r.text || "").replace(/\r\n?/g, `
+    version: L,
+    title: String(t.title || "").trim() || "Untitled chart",
+    text: String(t.text || "").replace(/\r\n?/g, `
 `)
   };
 }
-function _e() {
+function mt() {
   return new TextEncoder();
 }
-function Ne() {
+function ht() {
   return new TextDecoder();
 }
-function w(e) {
+function W(e) {
   if (typeof Buffer < "u")
     return Buffer.from(e).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-  let r = "";
-  const n = 32768;
-  for (let t = 0; t < e.length; t += n)
-    r += String.fromCharCode(...e.slice(t, t + n));
-  return btoa(r).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+  let t = "";
+  const r = 32768;
+  for (let n = 0; n < e.length; n += r)
+    t += String.fromCharCode(...e.slice(n, n + r));
+  return btoa(t).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
 }
-function O(e) {
-  const r = String(e || "").replace(/-/g, "+").replace(/_/g, "/"), n = `${r}${"=".repeat((4 - r.length % 4) % 4)}`;
+function ie(e) {
+  const t = String(e || "").replace(/-/g, "+").replace(/_/g, "/"), r = `${t}${"=".repeat((4 - t.length % 4) % 4)}`;
   if (typeof Buffer < "u")
-    return new Uint8Array(Buffer.from(n, "base64"));
-  const t = atob(n), i = new Uint8Array(t.length);
-  for (let o = 0; o < t.length; o += 1)
-    i[o] = t.charCodeAt(o);
-  return i;
+    return new Uint8Array(Buffer.from(r, "base64"));
+  const n = atob(r), s = new Uint8Array(n.length);
+  for (let o = 0; o < n.length; o += 1)
+    s[o] = n.charCodeAt(o);
+  return s;
 }
-function U(e) {
-  return _e().encode(e);
+function X(e) {
+  return mt().encode(e);
 }
-function x(e) {
-  return Ne().decode(e);
+function ae(e) {
+  return ht().decode(e);
 }
-function we(e) {
+function ft(e) {
   if (e.length === 0) return [];
-  const r = /* @__PURE__ */ new Map();
+  const t = /* @__PURE__ */ new Map();
   for (let o = 0; o < 256; o += 1)
-    r.set(String.fromCharCode(o), o);
-  let n = String.fromCharCode(e[0]), t = 256;
-  const i = [];
+    t.set(String.fromCharCode(o), o);
+  let r = String.fromCharCode(e[0] || 0), n = 256;
+  const s = [];
   for (let o = 1; o < e.length; o += 1) {
-    const s = String.fromCharCode(e[o]), a = n + s;
-    if (r.has(a)) {
-      n = a;
+    const i = String.fromCharCode(e[o] || 0), c = r + i;
+    if (t.has(c)) {
+      r = c;
       continue;
     }
-    i.push(r.get(n)), t <= 65535 && (r.set(a, t), t += 1), n = s;
+    s.push(t.get(r)), n <= 65535 && (t.set(c, n), n += 1), r = i;
   }
-  return i.push(r.get(n)), i;
+  return s.push(t.get(r)), s;
 }
-function Ue(e) {
+function pt(e) {
   if (e.length === 0) return new Uint8Array();
-  const r = /* @__PURE__ */ new Map();
-  for (let s = 0; s < 256; s += 1)
-    r.set(s, String.fromCharCode(s));
-  let n = 256, t = r.get(e[0]);
-  if (t === void 0) throw new Error("Invalid compressed chart payload.");
-  let i = t;
-  for (let s = 1; s < e.length; s += 1) {
-    const a = e[s];
-    let c = r.get(a);
-    if (c === void 0) {
-      if (a !== n) throw new Error("Invalid compressed chart payload.");
-      c = t + t.charAt(0);
+  const t = /* @__PURE__ */ new Map();
+  for (let i = 0; i < 256; i += 1)
+    t.set(i, String.fromCharCode(i));
+  let r = 256, n = t.get(e[0] || 0);
+  if (n === void 0) throw new Error("Invalid compressed chart payload.");
+  let s = n;
+  for (let i = 1; i < e.length; i += 1) {
+    const c = e[i] || 0;
+    let d = t.get(c);
+    if (d === void 0) {
+      if (c !== r) throw new Error("Invalid compressed chart payload.");
+      d = n + n.charAt(0);
     }
-    i += c, n <= 65535 && (r.set(n, t + c.charAt(0)), n += 1), t = c;
+    s += d, r <= 65535 && (t.set(r, n + d.charAt(0)), r += 1), n = d;
   }
-  const o = new Uint8Array(i.length);
-  for (let s = 0; s < i.length; s += 1)
-    o[s] = i.charCodeAt(s) & 255;
+  const o = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i += 1)
+    o[i] = s.charCodeAt(i) & 255;
   return o;
 }
-function Be(e) {
-  const r = new Uint8Array(e.length * 2);
-  return e.forEach((n, t) => {
-    if (n < 0 || n > 65535) throw new Error("Compressed chart payload is too large.");
-    r[t * 2] = n >> 8 & 255, r[t * 2 + 1] = n & 255;
-  }), r;
+function bt(e) {
+  const t = new Uint8Array(e.length * 2);
+  return e.forEach((r, n) => {
+    if (r < 0 || r > 65535) throw new Error("Compressed chart payload is too large.");
+    t[n * 2] = r >> 8 & 255, t[n * 2 + 1] = r & 255;
+  }), t;
 }
-function Re(e) {
+function gt(e) {
   if (e.length % 2 !== 0) throw new Error("Invalid compressed chart payload.");
-  const r = [];
-  for (let n = 0; n < e.length; n += 2)
-    r.push(e[n] << 8 | e[n + 1]);
-  return r;
+  const t = [];
+  for (let r = 0; r < e.length; r += 2)
+    t.push((e[r] || 0) << 8 | (e[r + 1] || 0));
+  return t;
 }
-function De(e) {
+function ce(e) {
+  const t = ie(e);
+  return ae(pt(gt(t)));
+}
+function de(e) {
+  return ae(ie(e));
+}
+function k(e) {
+  return JSON.parse(e);
+}
+function yt(e) {
+  const t = de(e);
+  try {
+    return k(t);
+  } catch (r) {
+    try {
+      return k(ce(e));
+    } catch {
+      throw r;
+    }
+  }
+}
+function St(e) {
   return JSON.stringify({
-    version: j,
+    version: L,
     title: e.title,
     text: e.text
   });
 }
-function L(e) {
-  const r = $(e), n = De(r), t = `${C}${w(U(n))}`;
+function ue(e) {
+  const t = se(e), r = St(t), n = `${U}${W(X(r))}`;
   try {
-    const i = Be(we(U(n))), o = `${y}${w(i)}`;
-    return o.length < t.length ? o : t;
+    const s = bt(ft(X(r))), o = `${B}${W(s)}`;
+    return o.length < n.length ? o : n;
   } catch {
-    return t;
+    return n;
   }
 }
-function $e(e) {
-  const r = String(e || "").trim();
-  if (!r)
+function vt(e) {
+  const t = String(e || "").trim();
+  if (!t)
     return { payload: null, errorMessage: "Missing chart payload." };
   try {
-    let n = "";
-    if (r.startsWith(y)) {
-      const o = O(r.slice(y.length));
-      n = x(Ue(Re(o)));
-    } else r.startsWith(C) ? n = x(O(r.slice(C.length))) : n = x(O(r));
-    const t = JSON.parse(n);
-    if (Number(t.version) !== j)
+    let r;
+    if (t.startsWith(B) ? r = k(ce(t.slice(B.length))) : t.startsWith(U) ? r = k(de(t.slice(U.length))) : r = yt(t), Number(r.version) !== L)
       return { payload: null, errorMessage: "Unsupported chart payload version." };
-    const i = $(t);
-    return i.text.trim() ? { payload: i, errorMessage: "" } : { payload: null, errorMessage: "The shared chart is empty." };
-  } catch (n) {
+    const n = se(r);
+    return n.text.trim() ? { payload: n, errorMessage: "" } : { payload: null, errorMessage: "The shared chart is empty." };
+  } catch (r) {
     return {
       payload: null,
-      errorMessage: n instanceof Error ? n.message : "Invalid chart payload."
+      errorMessage: r instanceof Error ? r.message : "Invalid chart payload."
     };
   }
 }
-function ze(e, {
-  scheme: r = ke
+function Tt(e, {
+  scheme: t = ut
 } = {}) {
-  const n = L(e);
-  return `${r}://${Ae}?payload=${encodeURIComponent(n)}`;
+  const r = ue(e);
+  return `${t}://${lt}?payload=${encodeURIComponent(r)}`;
 }
-function Pe(e = {}) {
+function xt(e = {}) {
   return {
     version: 1,
     title: String(e.title || "").trim() || "Untitled chart",
@@ -1049,25 +1306,25 @@ function Pe(e = {}) {
 `)
   };
 }
-function Le(e = {}) {
-  const r = Pe(e), n = je(r), t = !n.diagnostics.some((i) => i.severity === "error") && !!n.document;
+function Ct(e = {}) {
+  const t = xt(e), r = dt(t), n = !r.diagnostics.some((s) => s.severity === "error") && !!r.document;
   return {
-    ok: t,
-    title: r.title,
-    barCount: n.document?.bars?.length || 0,
-    diagnostics: n.diagnostics.map((i) => ({
-      severity: i.severity,
-      line: i.line,
-      column: i.column,
-      message: i.message
+    ok: n,
+    title: t.title,
+    barCount: r.document?.bars?.length || 0,
+    diagnostics: r.diagnostics.map((s) => ({
+      severity: s.severity,
+      line: s.line,
+      column: s.column,
+      message: s.message
     })),
-    encodedPayload: t ? L(r) : "",
-    importUrl: t ? ze(r) : ""
+    encodedPayload: n ? ue(t) : "",
+    importUrl: n ? Tt(t) : ""
   };
 }
 export {
-  ze as createChartTextImportDeepLink,
-  $e as decodeChartTextSharePayload,
-  L as encodeChartTextSharePayload,
-  Le as validateChartTextForSite
+  Tt as createChartTextImportDeepLink,
+  vt as decodeChartTextSharePayload,
+  ue as encodeChartTextSharePayload,
+  Ct as validateChartTextForSite
 };
