@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Great American Songbook Harmony - Sharp Eleven</title>
+  <meta name="description" content="A short Sharp Eleven research note on recurring harmonic progressions in a Great American Songbook analysis corpus.">
+  <link rel="icon" href="../../favicons/favicon.ico" sizes="any">
+  <link rel="icon" href="../../favicons/favicon-16x16.png" type="image/png" sizes="16x16">
+  <link rel="icon" href="../../favicons/favicon-32x32.png" type="image/png" sizes="32x32">
+  <link rel="icon" href="../../favicons/favicon-48x48.png" type="image/png" sizes="48x48">
+  <link rel="apple-touch-icon" href="../../favicons/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="../../favicons/site.webmanifest">
+  <meta name="theme-color" content="#f5f1e6">
+  <link rel="stylesheet" href="../../theme.css">
+  <style>
+    :root {
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--ui-bg);
+      color: var(--ui-text);
+    }
+
+    a {
+      color: var(--ui-accent-strong);
+    }
+
+    .page {
+      width: min(980px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 26px 0 64px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: clamp(36px, 7vw, 72px);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ui-text);
+      font-weight: 760;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      object-fit: contain;
+      flex: 0 0 auto;
+    }
+
+    .topbar-link {
+      color: var(--ui-text-muted);
+      font-size: 0.94rem;
+      text-decoration: none;
+    }
+
+    main {
+      display: grid;
+      gap: clamp(28px, 5vw, 48px);
+    }
+
+    .article-header {
+      display: grid;
+      gap: 18px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--ui-border);
+    }
+
+    .eyebrow {
+      margin: 0;
+      color: var(--ui-accent-cool);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      max-width: 12ch;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.8rem, 8vw, 5rem);
+      line-height: 0.96;
+      letter-spacing: 0;
+    }
+
+    .dek {
+      max-width: 760px;
+      margin: 0;
+      color: var(--ui-text-muted);
+      font-size: clamp(1.12rem, 2.4vw, 1.36rem);
+      line-height: 1.58;
+    }
+
+    .meta {
+      margin: 0;
+      color: var(--ui-text-faint);
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      min-width: 0;
+      padding: 18px;
+      border: 1px solid var(--ui-border);
+      border-radius: 8px;
+      background: var(--ui-surface);
+      box-shadow: var(--ui-control-shadow-soft);
+    }
+
+    .stat strong {
+      display: block;
+      color: var(--ui-text);
+      font-size: clamp(1.45rem, 4vw, 2.15rem);
+      line-height: 1;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 8px;
+      color: var(--ui-text-muted);
+      font-size: 0.9rem;
+      line-height: 1.4;
+    }
+
+    section {
+      display: grid;
+      gap: 14px;
+    }
+
+    h2 {
+      margin: 0;
+      color: var(--ui-text);
+      font-size: 1.3rem;
+      line-height: 1.25;
+      letter-spacing: 0;
+    }
+
+    p,
+    li {
+      color: var(--ui-text-muted);
+      font-size: 1.04rem;
+      line-height: 1.7;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 1.2rem;
+    }
+
+    code {
+      padding: 0.08rem 0.28rem;
+      border-radius: 5px;
+      background: var(--ui-chip-bg-subtle);
+      color: var(--ui-accent-cool);
+      font-size: 0.95em;
+    }
+
+    .note {
+      padding: 18px;
+      border-left: 4px solid var(--ui-accent);
+      background: var(--ui-secondary-soft);
+      color: var(--ui-text-muted);
+    }
+
+    .cta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      padding-top: 4px;
+    }
+
+    .button {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 18px;
+      border: 1px solid var(--ui-accent);
+      border-radius: 8px;
+      background: var(--ui-accent);
+      color: var(--ui-bg);
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: var(--ui-control-shadow);
+    }
+
+    @media (max-width: 760px) {
+      .page {
+        width: min(100% - 28px, 980px);
+        padding-top: 20px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 460px) {
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="topbar">
+      <a class="brand" href="../../" aria-label="Sharp Eleven home">
+        <img class="brand-logo" src="../../logo/classic-paper.png" alt="" width="256" height="256">
+        <span>Sharp Eleven</span>
+      </a>
+      <a class="topbar-link" href="../../">Home</a>
+    </header>
+
+    <main>
+      <header class="article-header">
+        <p class="eyebrow">Research note</p>
+        <h1>Great American Songbook Harmony</h1>
+        <p class="dek">A small number of recurring harmonic movements explain a surprisingly large share of the standards repertoire. This is the working research behind Sharp Eleven's Drill mode.</p>
+        <p class="meta">Current snapshot: May 2026. This page is a public summary; the internal analysis will keep evolving.</p>
+      </header>
+
+      <section class="stats" aria-label="Research summary numbers">
+        <div class="stat">
+          <strong>467</strong>
+          <span>charts in the current Great American Songbook analysis corpus</span>
+        </div>
+        <div class="stat">
+          <strong>21,275</strong>
+          <span>analyzable adjacent harmonic links after compression</span>
+        </div>
+        <div class="stat">
+          <strong>67.14%</strong>
+          <span>covered by fifth-cycle chains alone</span>
+        </div>
+        <div class="stat">
+          <strong>87.60%</strong>
+          <span>covered after adding canonical recurring figures</span>
+        </div>
+      </section>
+
+      <section>
+        <h2>The Short Version</h2>
+        <p>Jazz standards are not random chord streams. Once repeated versions of the same harmony are compressed, most local motion in this corpus falls into familiar families: fifth-cycle chains, turnarounds, minor cadences, backdoor motion, diminished passing chords, chromatic approaches, and short tonicization patterns.</p>
+        <p>That is the practical idea behind Drill mode: if you can recognize and play those families fluently in every key, a large part of the Great American Songbook starts to feel like variations on material you already know.</p>
+      </section>
+
+      <section>
+        <h2>What We Measured</h2>
+        <p>The corpus is a filtered research set derived from a larger Jazz 1460 chart collection. It targets Great American Songbook and closely related Broadway, Hollywood, and Tin Pan Alley standards. It is not a canonical musicological edition; it is a working dataset for building better practice tools.</p>
+        <p>Before counting, contiguous chords with the same root and simplified quality family are collapsed. For example, <code>Cmaj7 | C6 | Cmaj9</code> is treated as one major harmonic event. Coverage is then measured on adjacent links between compressed events, not on raw chord symbols, bars, or entire tunes.</p>
+      </section>
+
+      <section>
+        <h2>The Main Finding</h2>
+        <p>Fifth-cycle motion alone covers about two thirds of the analyzable adjacent links. When we add a small vocabulary of canonical recurring figures, coverage rises to 87.60%. That is the basis for the claim that a handful of progressions accounts for more than 80% of the harmonic motion in this working Songbook corpus.</p>
+        <p>Common examples include major <code>II-V-I</code> chains, minor <code>II-V-I</code> chains, <code>I-VI-II-V</code> turnarounds, <code>I-VI7-II-V</code> variants, backdoor cadences, <code>II-V</code> oscillations, diminished approaches into <code>II</code>, and temporary moves toward <code>III</code>, <code>IV</code>, or <code>VI</code>.</p>
+      </section>
+
+      <section>
+        <h2>What This Does Not Mean</h2>
+        <p class="note">The 87.60% number is compressed-link coverage in a working corpus. It does not mean every tune is harmonically identical, that melody and form can be ignored, or that every detected terminal chord is automatically a confirmed local tonic.</p>
+        <p>The remaining uncovered material is often short, idiomatic, and musically important. The point is not to reduce the repertoire to a formula, but to identify the core movements worth making automatic under the fingers and in the ear.</p>
+      </section>
+
+      <section>
+        <h2>Where Drill Mode Fits</h2>
+        <p>The current editable drill vocabulary covers 44.05% of the analyzable links as retained drill-core matches. That number is intentionally lower than the research coverage because the drill list is curated for playable practice routines, not for exhaustively labeling every pattern the analyzer can find.</p>
+        <p>Over time, the research vocabulary will feed more targeted drill families: cadential arrivals, chain restarts, chromatic approaches, common modulation paths, and minor-key variants.</p>
+      </section>
+
+      <section>
+        <h2>Next Steps</h2>
+        <ul>
+          <li>Refine the Songbook corpus boundary and document the inclusion rules more clearly.</li>
+          <li>Separate strong local-tonic evidence from looser terminal-chain signals.</li>
+          <li>Promote the most useful uncovered figures into practical Drill mode material.</li>
+          <li>Publish fuller tables, examples, and source-chart audits once the analysis stabilizes.</li>
+        </ul>
+      </section>
+
+      <section class="cta" aria-label="Practice call to action">
+        <a class="button" href="../../">Open Sharp Eleven</a>
+        <p>Use Drill mode to practice these harmonic families in every key.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
