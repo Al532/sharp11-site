@@ -5,9 +5,9 @@
     ],
     "target": {
       "namespace": "android_app",
-      "package_name": "io.github.al532.sharpelevenapp",
+      "package_name": "app.sharp11",
       "sha256_cert_fingerprints": [
-        "E4:73:BE:BF:94:CF:D5:B3:75:0E:C6:38:0B:B2:92:D9:2B:A5:30:FB:D7:F4:34:E6:48:D8:03:F1:A9:3B:A8:EB"
+        "57:0A:83:AD:C4:7A:1A:EA:3B:C7:2C:F2:1F:9F:7B:34:98:04:F2:9A:4E:67:65:0F:0D:6A:A4:FF:7C:F1:B1:7C"
       ]
     }
   }
