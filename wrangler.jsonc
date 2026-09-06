@@ -1,5 +1,6 @@
 {
   "name": "sharp11-app-links",
+  "account_id": "9bc820d5d2b6c7a18019f7b4398828c9",
   "main": "workers/app-links.mjs",
   "compatibility_date": "2026-09-06",
   "workers_dev": false,
